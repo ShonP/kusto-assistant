@@ -11,17 +11,29 @@ import {
   StepContentContainer,
   StepTitleText,
   StepDescription,
+  StepDataContainer,
   StepDataBlock,
 } from './TooltipSteps.style'
 
-export const TooltipSteps: FC<ITooltipStepsProps> = ({ steps, expanded, onToggle }) => {
+const formatJsonData = (data: string): string => {
+  try {
+    const parsed = JSON.parse(data)
+    return JSON.stringify(parsed, null, 2)
+  } catch {
+    return data
+  }
+}
+
+export const TooltipSteps: FC<ITooltipStepsProps> = ({ steps, expanded, onToggle, isComplete }) => {
   const { t } = useTranslation()
 
-  if (steps.length === 0) {
+  if (steps.length === 0 || !isComplete) {
     return null
   }
 
-  const stepsLabel = steps.length > 1 ? t('tooltip.steps') : t('tooltip.step')
+  const reasonedLabel = steps.length === 1
+    ? t('tooltip.reasonedInStep', { count: steps.length })
+    : t('tooltip.reasonedInSteps', { count: steps.length })
   const toggleLabel = expanded ? t('common.collapse') : t('common.expand')
 
   return (
@@ -29,7 +41,7 @@ export const TooltipSteps: FC<ITooltipStepsProps> = ({ steps, expanded, onToggle
       <Toggle onClick={onToggle}>
         {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         <span>
-          {steps.length} {stepsLabel} ({toggleLabel})
+          {reasonedLabel} ({toggleLabel})
         </span>
       </Toggle>
       <StepsListContainer $expanded={expanded}>
@@ -39,7 +51,11 @@ export const TooltipSteps: FC<ITooltipStepsProps> = ({ steps, expanded, onToggle
             <StepContentContainer>
               <StepTitleText>{step.title}</StepTitleText>
               {step.description && <StepDescription>{step.description}</StepDescription>}
-              {step.data && <StepDataBlock>{step.data}</StepDataBlock>}
+              {step.data && (
+                <StepDataContainer>
+                  <StepDataBlock>{formatJsonData(step.data)}</StepDataBlock>
+                </StepDataContainer>
+              )}
             </StepContentContainer>
           </StepItemContainer>
         ))}

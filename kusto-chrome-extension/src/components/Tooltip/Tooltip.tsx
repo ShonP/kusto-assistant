@@ -55,7 +55,7 @@ export const Tooltip: FC<ITooltipProps> = ({ target, onClose }) => {
 
       {result && <TooltipResult result={result} hasError={hasError} />}
 
-      <TooltipSteps steps={steps} expanded={stepsExpanded} onToggle={toggleSteps} />
+      <TooltipSteps steps={steps} expanded={stepsExpanded} onToggle={toggleSteps} isComplete={isComplete} />
 
       {isComplete && result && !hasError && (
         <TooltipActions result={result} copied={copied} onCopy={handleCopy} />

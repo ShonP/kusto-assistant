@@ -29,8 +29,10 @@ export const StepItemContainer = styled.div`
   display: flex;
   align-items: flex-start;
   gap: ${({ theme }) => theme.spacing.sm};
-  padding: ${({ theme }) => theme.spacing.xs} 0;
+  padding: ${({ theme }) => theme.spacing.sm} 0;
   border-block-end: 1px solid ${({ theme }) => theme.colors.border};
+  max-height: 200px;
+  overflow-y: auto;
 
   &:last-child {
     border-block-end: none;
@@ -62,14 +64,41 @@ export const StepDescription = styled.div`
   color: ${({ theme }) => theme.colors.textMuted};
 `
 
+export const StepDataContainer = styled.div`
+  margin-block-start: ${({ theme }) => theme.spacing.xs};
+  max-height: 120px;
+  overflow: auto;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+`
+
 export const StepDataBlock = styled.pre`
   font-size: ${({ theme }) => theme.fontSize.xs};
-  color: ${({ theme }) => theme.colors.textSecondary};
-  background-color: ${({ theme }) => theme.colors.background};
-  padding: ${({ theme }) => theme.spacing.xs};
-  border-radius: ${({ theme }) => theme.borderRadius.sm};
-  margin-block-start: ${({ theme }) => theme.spacing.xs};
+  font-family: ${({ theme }) => theme.fontFamilyMono};
+  color: ${({ theme }) => theme.colors.code};
+  background-color: ${({ theme }) => theme.colors.codeBg};
+  padding: ${({ theme }) => theme.spacing.sm};
+  margin: 0;
+  white-space: pre;
   overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
+
+  .json-key {
+    color: #7c3aed;
+  }
+
+  .json-string {
+    color: #059669;
+  }
+
+  .json-number {
+    color: #d97706;
+  }
+
+  .json-boolean {
+    color: #dc2626;
+  }
+
+  .json-null {
+    color: #6b7280;
+  }
 `

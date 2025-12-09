@@ -59,6 +59,21 @@ export const ThemeProvider: FC<IThemeProviderProps> = ({ children }) => {
           setThemeModeState(stored)
         }
       })
+
+      const handleStorageChange = (
+        changes: { [key: string]: chrome.storage.StorageChange },
+        areaName: string
+      ) => {
+        if (areaName === 'local' && changes[THEME_STORAGE_KEY]) {
+          const newValue = changes[THEME_STORAGE_KEY].newValue
+          if (newValue === 'light' || newValue === 'dark' || newValue === 'system') {
+            setThemeModeState(newValue)
+          }
+        }
+      }
+
+      chrome.storage.onChanged.addListener(handleStorageChange)
+      return () => chrome.storage.onChanged.removeListener(handleStorageChange)
     }
   }, [])
 

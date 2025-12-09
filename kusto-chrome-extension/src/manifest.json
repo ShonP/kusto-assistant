@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Ctrl+K Assistant",
+  "name": "Kusto Assistant",
   "version": "1.0.0",
   "permissions": ["activeTab", "scripting", "storage"],
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "Ctrl+K Assistant"
+    "default_title": "Kusto Assistant"
   },
   "background": {
     "service_worker": "background.ts"

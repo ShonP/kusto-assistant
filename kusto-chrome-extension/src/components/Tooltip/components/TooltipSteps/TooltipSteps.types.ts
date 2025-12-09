@@ -4,4 +4,5 @@ export interface ITooltipStepsProps {
   steps: IStep[]
   expanded: boolean
   onToggle: () => void
+  isComplete: boolean
 }

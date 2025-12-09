@@ -1,7 +1,7 @@
 {
   "name": "kusto-chrome-extension",
   "version": "1.0.0",
-  "description": "Ctrl+K Assistant Chrome Extension",
+  "description": "Kusto Assistant Chrome Extension",
   "type": "module",
   "scripts": {
     "dev": "vite",

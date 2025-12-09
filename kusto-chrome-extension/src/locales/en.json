@@ -12,22 +12,22 @@
     "down": "Down"
   },
   "tooltip": {
-    "title": "Ctrl+K Assistant",
+    "title": "Kusto Assistant",
     "connecting": "Connecting...",
     "processing": "Processing...",
     "callingTool": "Calling tool...",
     "toolComplete": "Tool complete",
     "error": "Error",
     "unknownError": "Unknown error",
-    "step": "step",
-    "steps": "steps",
+    "reasonedInStep": "Reasoned in {{count}} step",
+    "reasonedInSteps": "Reasoned in {{count}} steps",
     "serverUnavailable": "Server Unavailable",
     "serverReturnedError": "Server returned error",
     "cannotConnect": "Cannot connect to server",
     "noReaderAvailable": "No reader available"
   },
   "popup": {
-    "title": "Ctrl+K Assistant",
+    "title": "Kusto Assistant",
     "apiStatus": "API Status:",
     "checking": "Checking...",
     "port": "Port:",
