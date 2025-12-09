@@ -24,6 +24,7 @@ export class HealthController {
   private readonly memoryHeapThreshold: number;
   private readonly memoryRssThreshold: number;
   private readonly imageTag: string;
+  private readonly diskPath: string;
 
   constructor(
     private readonly health: HealthCheckService,
@@ -35,6 +36,7 @@ export class HealthController {
     this.memoryHeapThreshold = totalMemory * 0.75;
     this.memoryRssThreshold = totalMemory * 0.9;
     this.imageTag = process.env.IMAGE_TAG || 'unknown';
+    this.diskPath = os.platform() === 'win32' ? 'C:\\' : '/';
   }
 
   @Get()
@@ -54,7 +56,7 @@ export class HealthController {
         name: 'storage',
         fn: () =>
           this.disk.checkStorage('storage', {
-            path: '/',
+            path: this.diskPath,
             thresholdPercent: 0.9,
           }),
       },
@@ -111,7 +113,7 @@ export class HealthController {
       () => this.memory.checkRSS('memory_rss', this.memoryRssThreshold),
       () =>
         this.disk.checkStorage('storage', {
-          path: '/',
+          path: this.diskPath,
           thresholdPercent: 0.9,
         }),
     ]);
@@ -143,7 +145,7 @@ export class HealthController {
       () => this.memory.checkRSS('memory_rss', this.memoryRssThreshold),
       () =>
         this.disk.checkStorage('storage', {
-          path: '/',
+          path: this.diskPath,
           thresholdPercent: 0.9,
         }),
       () => this.llmHealth.isHealthy('llm'),
