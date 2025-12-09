@@ -35,6 +35,7 @@ docker pull crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 
 **Option A: Azure OpenAI with Managed Identity (uses `az login` credentials)**
 
+**Bash/macOS/Linux:**
 ```bash
 docker run -d -p 3847:3847 \
   -e LLM_PROVIDER=azure-openai-identity \
@@ -46,8 +47,21 @@ docker run -d -p 3847:3847 \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
+**PowerShell (Windows):**
+```powershell
+docker run -d -p 3847:3847 `
+  -e LLM_PROVIDER=azure-openai-identity `
+  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
+  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
+  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
+  -e LLM_MODEL=gpt-5.1 `
+  -v $env:USERPROFILE\.azure:/root/.azure:ro `
+  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
+```
+
 **Option B: Azure OpenAI with API Key**
 
+**Bash/macOS/Linux:**
 ```bash
 docker run -d -p 3847:3847 \
   -e LLM_PROVIDER=azure-openai-key \
@@ -60,14 +74,38 @@ docker run -d -p 3847:3847 \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
+**PowerShell (Windows):**
+```powershell
+docker run -d -p 3847:3847 `
+  -e LLM_PROVIDER=azure-openai-key `
+  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
+  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
+  -e AZURE_OPENAI_API_KEY=your-api-key `
+  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
+  -e LLM_MODEL=gpt-5.1 `
+  -v $env:USERPROFILE\.azure:/root/.azure:ro `
+  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
+```
+
 **Option C: OpenAI API**
 
+**Bash/macOS/Linux:**
 ```bash
 docker run -d -p 3847:3847 \
   -e LLM_PROVIDER=openai \
   -e OPENAI_API_KEY=your-openai-api-key \
   -e LLM_MODEL=gpt-5.1 \
   -v ~/.azure:/root/.azure:ro \
+  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
+```
+
+**PowerShell (Windows):**
+```powershell
+docker run -d -p 3847:3847 `
+  -e LLM_PROVIDER=openai `
+  -e OPENAI_API_KEY=your-openai-api-key `
+  -e LLM_MODEL=gpt-5.1 `
+  -v $env:USERPROFILE\.azure:/root/.azure:ro `
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
@@ -81,12 +119,42 @@ docker run -d -p 3847:3847 \
 4. Enable **Developer mode** (top right)
 5. Click **Load unpacked** and select the extracted folder
 
-### 4. Use the Assistant
+### 4. Verify the Backend is Healthy
+
+Before using the assistant, make sure the backend service is running:
+
+```bash
+curl http://localhost:3847/api/v1/health
+```
+
+You should see a response like:
+```json
+{
+  "success": true,
+  "data": {
+    "status": "ok",
+    "details": {
+      "memory_heap": { "status": "up" },
+      "memory_rss": { "status": "up" },
+      "storage": { "status": "up" },
+      "llm": {
+        "status": "up",
+        "provider": "azure-openai",
+        "model": "gpt-5.1"
+      }
+    }
+  }
+}
+```
+
+### 5. Use the Assistant
 
 1. Open [Azure Data Explorer](https://dataexplorer.azure.com)
 2. Write a comment describing what you want, e.g., `// get all logs from the last hour`
-3. Press `Ctrl+K` to activate the assistant
+3. Press `Alt+K` (Windows) or `Cmd+K` (macOS) to activate the assistant
 4. The AI will generate a KQL query based on your request
+
+![Kusto Assistant in action](images/example_usage.png)
 
 ## Configuration Options
 
@@ -102,6 +170,7 @@ docker run -d -p 3847:3847 \
 
 Use Azure credentials from `az login`:
 
+**Bash/macOS/Linux:**
 ```bash
 docker run -d -p 3847:3847 \
   -e LLM_PROVIDER=azure-openai-identity \
@@ -113,8 +182,21 @@ docker run -d -p 3847:3847 \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
+**PowerShell (Windows):**
+```powershell
+docker run -d -p 3847:3847 `
+  -e LLM_PROVIDER=azure-openai-identity `
+  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
+  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
+  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
+  -e LLM_MODEL=gpt-5.1 `
+  -v $env:USERPROFILE\.azure:/root/.azure:ro `
+  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
+```
+
 ### Azure OpenAI with API Key
 
+**Bash/macOS/Linux:**
 ```bash
 docker run -d -p 3847:3847 \
   -e LLM_PROVIDER=azure-openai-key \
@@ -127,8 +209,22 @@ docker run -d -p 3847:3847 \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
+**PowerShell (Windows):**
+```powershell
+docker run -d -p 3847:3847 `
+  -e LLM_PROVIDER=azure-openai-key `
+  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
+  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
+  -e AZURE_OPENAI_API_KEY=your-api-key `
+  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
+  -e LLM_MODEL=gpt-5.1 `
+  -v $env:USERPROFILE\.azure:/root/.azure:ro `
+  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
+```
+
 ### OpenAI API
 
+**Bash/macOS/Linux:**
 ```bash
 docker run -d -p 3847:3847 \
   -e LLM_PROVIDER=openai \
@@ -138,7 +234,17 @@ docker run -d -p 3847:3847 \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
-> **Note:** The `-v ~/.azure:/root/.azure:ro` mount is required for all providers to allow access to your Kusto clusters.
+**PowerShell (Windows):**
+```powershell
+docker run -d -p 3847:3847 `
+  -e LLM_PROVIDER=openai `
+  -e OPENAI_API_KEY=your-openai-api-key `
+  -e LLM_MODEL=gpt-5.1 `
+  -v $env:USERPROFILE\.azure:/root/.azure:ro `
+  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
+```
+
+> **Note:** The `-v ~/.azure:/root/.azure:ro` (or `$env:USERPROFILE\.azure` on Windows) mount is required for all providers to allow access to your Kusto clusters.
 
 ## Health Check
 
@@ -151,8 +257,20 @@ curl http://localhost:3847/api/v1/health
 Expected response:
 ```json
 {
-  "status": "healthy",
-  "message": "All systems operational"
+  "success": true,
+  "data": {
+    "status": "ok",
+    "details": {
+      "memory_heap": { "status": "up" },
+      "memory_rss": { "status": "up" },
+      "storage": { "status": "up" },
+      "llm": {
+        "status": "up",
+        "provider": "azure-openai",
+        "model": "gpt-5.1"
+      }
+    }
+  }
 }
 ```
 
