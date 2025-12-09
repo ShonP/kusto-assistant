@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@azure/identity": "^4.13.0",
     "@modelcontextprotocol/sdk": "^1.24.3",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",

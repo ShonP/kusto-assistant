@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { Agent, run, tool } from '@openai/agents';
 import { z } from 'zod';
 import { McpClientService } from './mcp-client.service';
+import { LlmClientService } from './llm-client.service';
 import { AgentStreamEvent, createEvent } from '../types/agent-event.types';
-import { getAgentInstructions, AGENT_MODEL } from '../config/agent.config';
+import { getAgentInstructions } from '../config/agent.config';
 import type { KustoContext } from '../controllers/agent.controller';
 
-// Callback types for event emission
-interface AgentCallbacks {
+interface IAgentCallbacks {
   onAnnotation: (title: string, description: string) => void;
   onToolCall: (toolName: string, args: Record<string, unknown>) => void;
   onToolResult: (toolName: string, result: unknown) => void;
@@ -17,15 +17,16 @@ interface AgentCallbacks {
 export class AgentService {
   private agent: Agent | null = null;
 
-  constructor(private readonly mcpClient: McpClientService) {}
+  constructor(
+    private readonly mcpClient: McpClientService,
+    private readonly llmClient: LlmClientService,
+  ) {}
 
-  /**
-   * Create the agent with all tools (MCP + annotate_step)
-   */
-  private createAgent(
-    callbacks: AgentCallbacks,
-    kustoContext: KustoContext,
-  ): Agent {
+  private createAgent(args: {
+    callbacks: IAgentCallbacks;
+    kustoContext: KustoContext;
+  }): Agent {
+    const { callbacks, kustoContext } = args;
     const { onAnnotation, onToolCall, onToolResult } = callbacks;
 
     // Create annotate_step tool that emits events
@@ -78,8 +79,7 @@ export class AgentService {
         kustoContext.clusterUri,
         kustoContext.databaseName,
       ),
-      model: AGENT_MODEL,
-      // tools: agentTools,
+      model: this.llmClient.getModel(),
       tools: [annotateStepTool, ...agentTools],
     });
   }
@@ -160,8 +160,7 @@ export class AgentService {
       }
     };
 
-    // Create callbacks for all event types
-    const callbacks: AgentCallbacks = {
+    const callbacks: IAgentCallbacks = {
       onAnnotation: (title: string, description: string) => {
         pushEvent(createEvent('annotation', title, description));
       },
@@ -200,8 +199,7 @@ export class AgentService {
       `Processing your request: "${userMessage}"`,
     );
 
-    // Create agent with all callbacks
-    const agent = this.createAgent(callbacks, kustoContext);
+    const agent = this.createAgent({ callbacks, kustoContext });
 
     // Start agent execution in background
     let finalOutput: string | null = null;

@@ -54,11 +54,4 @@ Based on the partial input AND the actual schema you retrieved, intelligently co
 Be concise and return valid KQL that can be executed immediately.
 `;
 
-// Keep a default export for backward compatibility
-export const AGENT_INSTRUCTIONS = getAgentInstructions(
-  'https://kuskusops.kusto.windows.net/',
-  'TestLogs',
-);
-
 export const AGENT_NAME = 'KQL Autocomplete Agent';
-export const AGENT_MODEL = 'gpt-5.1';

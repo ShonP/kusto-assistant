@@ -10,7 +10,16 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3847
+      # LLM Provider: 'openai' | 'azure-openai-key' | 'azure-openai-identity'
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
+      - LLM_MODEL=${LLM_MODEL:-gpt-4o}
+      # OpenAI Configuration (when LLM_PROVIDER=openai)
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # Azure OpenAI Configuration (when LLM_PROVIDER=azure-openai-key or azure-openai-identity)
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - AZURE_OPENAI_DEPLOYMENT=${AZURE_OPENAI_DEPLOYMENT}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-2024-08-01-preview}
     volumes:
       # Mount local Azure CLI credentials (read-write so CLI can update cache)
       - ${AZURE_CONFIG_DIR:-~/.azure}:/root/.azure
