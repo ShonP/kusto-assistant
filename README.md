@@ -33,7 +33,27 @@ az login
 docker pull crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
+> **Windows users:** For now, skip pulling from ACR—clone the repo and build/run locally instead:
+> ```powershell
+> git clone https://github.com/ShonP/kusto-assistant.git
+> cd kusto-assistant/backend
+> docker build -t kusto-assistant-backend:local .
+> # use the local image tag (see Windows commands below)
+> ```
+
 **Option A: Azure OpenAI with Managed Identity (uses `az login` credentials)**
+
+**PowerShell (Windows):**
+```powershell
+docker run -d -p 3847:3847 `
+  -e LLM_PROVIDER=azure-openai-identity `
+  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
+  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
+  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
+  -e LLM_MODEL=gpt-5.1 `
+  -v $env:USERPROFILE\.azure:/root/.azure `
+  kusto-assistant-backend:local
+```
 
 **Bash/macOS/Linux:**
 ```bash
@@ -47,19 +67,20 @@ docker run -d -p 3847:3847 \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
+**Option B: Azure OpenAI with API Key**
+
 **PowerShell (Windows):**
 ```powershell
 docker run -d -p 3847:3847 `
-  -e LLM_PROVIDER=azure-openai-identity `
+  -e LLM_PROVIDER=azure-openai-key `
   -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
   -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
+  -e AZURE_OPENAI_API_KEY=your-api-key `
   -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
   -e LLM_MODEL=gpt-5.1 `
-  -v $env:USERPROFILE\.azure:/root/.azure `
-  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
+  -v $env:USERPROFILE\.azure:/root/.azure:ro `
+  kusto-assistant-backend:local
 ```
-
-**Option B: Azure OpenAI with API Key**
 
 **Bash/macOS/Linux:**
 ```bash
@@ -74,30 +95,7 @@ docker run -d -p 3847:3847 \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
-**PowerShell (Windows):**
-```powershell
-docker run -d -p 3847:3847 `
-  -e LLM_PROVIDER=azure-openai-key `
-  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
-  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
-  -e AZURE_OPENAI_API_KEY=your-api-key `
-  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
-  -e LLM_MODEL=gpt-5.1 `
-  -v $env:USERPROFILE\.azure:/root/.azure:ro `
-  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
-```
-
 **Option C: OpenAI API**
-
-**Bash/macOS/Linux:**
-```bash
-docker run -d -p 3847:3847 \
-  -e LLM_PROVIDER=openai \
-  -e OPENAI_API_KEY=your-openai-api-key \
-  -e LLM_MODEL=gpt-5.1 \
-  -v ~/.azure:/root/.azure:ro \
-  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
-```
 
 **PowerShell (Windows):**
 ```powershell
@@ -106,6 +104,16 @@ docker run -d -p 3847:3847 `
   -e OPENAI_API_KEY=your-openai-api-key `
   -e LLM_MODEL=gpt-5.1 `
   -v $env:USERPROFILE\.azure:/root/.azure:ro `
+  kusto-assistant-backend:local
+```
+
+**Bash/macOS/Linux:**
+```bash
+docker run -d -p 3847:3847 \
+  -e LLM_PROVIDER=openai \
+  -e OPENAI_API_KEY=your-openai-api-key \
+  -e LLM_MODEL=gpt-5.1 \
+  -v ~/.azure:/root/.azure:ro \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
