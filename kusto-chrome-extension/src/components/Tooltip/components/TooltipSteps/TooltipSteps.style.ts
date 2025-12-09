@@ -70,35 +70,7 @@ export const StepDataContainer = styled.div`
   overflow: auto;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 1px solid ${({ theme }) => theme.colors.border};
-`
-
-export const StepDataBlock = styled.pre`
-  font-size: ${({ theme }) => theme.fontSize.xs};
-  font-family: ${({ theme }) => theme.fontFamilyMono};
-  color: ${({ theme }) => theme.colors.code};
   background-color: ${({ theme }) => theme.colors.codeBg};
-  padding: ${({ theme }) => theme.spacing.sm};
-  margin: 0;
-  white-space: pre;
-  overflow-x: auto;
-
-  .json-key {
-    color: #7c3aed;
-  }
-
-  .json-string {
-    color: #059669;
-  }
-
-  .json-number {
-    color: #d97706;
-  }
-
-  .json-boolean {
-    color: #dc2626;
-  }
-
-  .json-null {
-    color: #6b7280;
-  }
+  padding: ${({ theme }) => theme.spacing.xs};
+  font-size: ${({ theme }) => theme.fontSize.xs};
 `

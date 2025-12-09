@@ -1,6 +1,9 @@
-import type { FC } from 'react'
+import { useMemo, type FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronRight, ChevronDown } from 'lucide-react'
+import { JsonView, darkStyles, defaultStyles } from 'react-json-view-lite'
+import 'react-json-view-lite/dist/index.css'
+import { useThemeMode } from '../../../../hooks/useTheme'
 import type { ITooltipStepsProps } from './TooltipSteps.types'
 import {
   StepsSectionContainer,
@@ -12,20 +15,21 @@ import {
   StepTitleText,
   StepDescription,
   StepDataContainer,
-  StepDataBlock,
 } from './TooltipSteps.style'
 
-const formatJsonData = (data: string): string => {
+const parseJsonData = (data: string): object | Array<unknown> => {
   try {
-    const parsed = JSON.parse(data)
-    return JSON.stringify(parsed, null, 2)
+    return JSON.parse(data) as object | Array<unknown>
   } catch {
-    return data
+    return { raw: data }
   }
 }
 
 export const TooltipSteps: FC<ITooltipStepsProps> = ({ steps, expanded, onToggle, isComplete }) => {
   const { t } = useTranslation()
+  const { isDark } = useThemeMode()
+
+  const jsonStyle = useMemo(() => (isDark ? darkStyles : defaultStyles), [isDark])
 
   if (steps.length === 0 || !isComplete) {
     return null
@@ -53,7 +57,7 @@ export const TooltipSteps: FC<ITooltipStepsProps> = ({ steps, expanded, onToggle
               {step.description && <StepDescription>{step.description}</StepDescription>}
               {step.data && (
                 <StepDataContainer>
-                  <StepDataBlock>{formatJsonData(step.data)}</StepDataBlock>
+                  <JsonView data={parseJsonData(step.data)} style={jsonStyle} />
                 </StepDataContainer>
               )}
             </StepContentContainer>
