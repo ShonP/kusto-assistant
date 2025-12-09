@@ -1,4 +1,9 @@
-import { Injectable, HttpException, HttpStatus, Optional } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  Optional,
+} from '@nestjs/common';
 import { HttpService as NestHttpService } from '@nestjs/axios';
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import axiosRetry from 'axios-retry';

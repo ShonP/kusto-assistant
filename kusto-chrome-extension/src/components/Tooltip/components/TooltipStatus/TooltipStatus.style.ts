@@ -2,7 +2,7 @@ import styled from '@emotion/styled'
 
 export const StatusContainer = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: ${({ theme }) => theme.spacing.sm};
   padding: ${({ theme }) => theme.spacing.md};
   background-color: ${({ theme }) => theme.colors.surface};
@@ -12,6 +12,9 @@ export const StatusContainer = styled.div`
 export const Spinner = styled.div`
   width: 16px;
   height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  flex-shrink: 0;
   border: 2px solid ${({ theme }) => theme.colors.border};
   border-top-color: ${({ theme }) => theme.colors.success};
   border-radius: 50%;

@@ -17,7 +17,7 @@ export default () => ({
   },
 
   http: {
-    timeout: parseInt(process.env.HTTP_TIMEOUT || '30000', 10),
+    timeout: parseInt(process.env.HTTP_TIMEOUT || '60000', 10),
     client: {
       timeout: parseInt(process.env.HTTP_CLIENT_TIMEOUT || '10000', 10),
       retries: parseInt(process.env.HTTP_CLIENT_RETRIES || '3', 10),
