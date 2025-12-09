@@ -5,15 +5,15 @@ on:
     branches:
       - main
     paths:
-      - 'backend/**'
-      - 'kusto-chrome-extension/**'
-      - '.github/workflows/build-and-push.yml'
+      - "backend/**"
+      - "kusto-chrome-extension/**"
+      - ".github/workflows/build-and-push.yml"
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to build for'
+        description: "Environment to build for"
         required: true
-        default: 'prod'
+        default: "prod"
         type: choice
         options:
           - prod
