@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AzureOpenAI, OpenAI } from 'openai';
 import {
@@ -6,6 +6,7 @@ import {
   getBearerTokenProvider,
 } from '@azure/identity';
 import { setDefaultOpenAIClient, setOpenAIAPI } from '@openai/agents';
+import { LoggerService } from '../../telemetry/logger/logger.service';
 
 export type LlmProviderType =
   | 'openai'
@@ -34,11 +35,15 @@ export interface ILlmClientInfo {
 
 @Injectable()
 export class LlmClientService implements OnModuleInit {
-  private readonly logger = new Logger(LlmClientService.name);
   private client: OpenAI | AzureOpenAI | null = null;
   private config: ILlmConfig | null = null;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly logger: LoggerService,
+  ) {
+    this.logger.setContext(LlmClientService.name);
+  }
 
   onModuleInit(): void {
     this.initializeClient();
@@ -51,9 +56,13 @@ export class LlmClientService implements OnModuleInit {
       throw new Error('LLM configuration not found');
     }
 
-    this.logger.log(
-      `Initializing LLM client with provider: ${this.config.provider}`,
-    );
+    this.logger.log({
+      message: 'Initializing LLM client',
+      context: {
+        provider: this.config.provider,
+        model: this.config.model,
+      },
+    });
 
     switch (this.config.provider) {
       case 'openai':
@@ -74,7 +83,14 @@ export class LlmClientService implements OnModuleInit {
     }
 
     setDefaultOpenAIClient(this.client as OpenAI);
-    this.logger.log(`LLM client initialized successfully`);
+    this.logger.log({
+      message: 'LLM client initialized successfully',
+      context: {
+        provider: this.config.provider,
+        model: this.config.model,
+        isAzure: this.config.provider.startsWith('azure'),
+      },
+    });
   }
 
   private createOpenAIClient(): OpenAI {

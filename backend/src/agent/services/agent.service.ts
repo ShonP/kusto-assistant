@@ -5,6 +5,7 @@ import { McpClientService } from './mcp-client.service';
 import { LlmClientService } from './llm-client.service';
 import { AgentStreamEvent, createEvent } from '../types/agent-event.types';
 import { getAgentInstructions } from '../config/agent.config';
+import { LoggerService } from '../../telemetry/logger/logger.service';
 import type { KustoContext } from '../controllers/agent.controller';
 
 interface IAgentCallbacks {
@@ -20,7 +21,10 @@ export class AgentService {
   constructor(
     private readonly mcpClient: McpClientService,
     private readonly llmClient: LlmClientService,
-  ) {}
+    private readonly logger: LoggerService,
+  ) {
+    this.logger.setContext(AgentService.name);
+  }
 
   private createAgent(args: {
     callbacks: IAgentCallbacks;
@@ -28,6 +32,14 @@ export class AgentService {
   }): Agent {
     const { callbacks, kustoContext } = args;
     const { onAnnotation, onToolCall, onToolResult } = callbacks;
+
+    this.logger.log({
+      message: 'Creating agent',
+      context: {
+        clusterUri: kustoContext.clusterUri,
+        databaseName: kustoContext.databaseName,
+      },
+    });
 
     // Create annotate_step tool that emits events
     const annotateStepTool = tool({
@@ -73,13 +85,25 @@ export class AgentService {
       });
     });
 
+    const model = this.llmClient.getModel();
+    const toolNames = [annotateStepTool.name, ...agentTools.map((t) => t.name)];
+
+    this.logger.log({
+      message: 'Agent created successfully',
+      context: {
+        model,
+        toolCount: toolNames.length,
+        tools: toolNames.join(', '),
+      },
+    });
+
     return new Agent({
       name: 'DataIntelligenceAgent',
       instructions: getAgentInstructions(
         kustoContext.clusterUri,
         kustoContext.databaseName,
       ),
-      model: this.llmClient.getModel(),
+      model,
       tools: [annotateStepTool, ...agentTools],
     });
   }
@@ -147,6 +171,17 @@ export class AgentService {
     userMessage: string,
     kustoContext: KustoContext,
   ): AsyncGenerator<AgentStreamEvent> {
+    this.logger.log({
+      message: 'Starting agent run',
+      context: {
+        userMessage: userMessage.substring(0, 100),
+        clusterUri: kustoContext.clusterUri,
+        databaseName: kustoContext.databaseName,
+      },
+    });
+
+    const startTime = Date.now();
+
     // Queue to collect events during execution
     const eventQueue: AgentStreamEvent[] = [];
     let resolveWaiting: (() => void) | null = null;
@@ -162,9 +197,17 @@ export class AgentService {
 
     const callbacks: IAgentCallbacks = {
       onAnnotation: (title: string, description: string) => {
+        this.logger.log({
+          message: 'Agent annotation',
+          context: { title, description },
+        });
         pushEvent(createEvent('annotation', title, description));
       },
       onToolCall: (toolName: string, args: Record<string, unknown>) => {
+        this.logger.log({
+          message: 'Agent tool call started',
+          context: { toolName, args: JSON.stringify(args).substring(0, 200) },
+        });
         pushEvent(
           createEvent(
             'tool_call',
@@ -178,6 +221,13 @@ export class AgentService {
         );
       },
       onToolResult: (toolName: string, result: unknown) => {
+        this.logger.log({
+          message: 'Agent tool call completed',
+          context: {
+            toolName,
+            resultPreview: JSON.stringify(result).substring(0, 200),
+          },
+        });
         pushEvent(
           createEvent(
             'tool_result',
@@ -254,8 +304,15 @@ export class AgentService {
     // Wait for agent to fully complete
     await agentPromise;
 
+    const durationMs = Date.now() - startTime;
+
     // Handle error
     if (agentErrorMessage) {
+      this.logger.error({
+        message: 'Agent run failed',
+        error: new Error(agentErrorMessage),
+        context: { durationMs, userMessage: userMessage.substring(0, 100) },
+      });
       yield createEvent('error', 'Agent Error', agentErrorMessage, {
         error: agentErrorMessage,
       });
@@ -263,14 +320,24 @@ export class AgentService {
     }
 
     // Emit final message
-    if (finalOutput) {
-      yield createEvent('message', 'Response', finalOutput, {
-        content: finalOutput,
+    const output = finalOutput as string | null;
+    if (output) {
+      yield createEvent('message', 'Response', output, {
+        content: output,
       });
     }
 
+    this.logger.log({
+      message: 'Agent run completed successfully',
+      context: {
+        durationMs,
+        outputLength: output?.length ?? 0,
+        userMessage: userMessage.substring(0, 100),
+      },
+    });
+
     yield createEvent('done', 'Complete', 'Agent finished processing', {
-      finalAnswer: finalOutput || '',
+      finalAnswer: output ?? '',
     });
   }
 }

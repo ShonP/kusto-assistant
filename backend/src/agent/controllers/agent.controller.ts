@@ -8,6 +8,7 @@ import {
 import type { Response } from 'express';
 import { AgentService } from '../services/agent.service';
 import { AskAgentDto } from '../dto/ask-agent.dto';
+import { LoggerService } from '../../telemetry/logger/logger.service';
 
 export interface KustoContext {
   clusterUri: string;
@@ -26,7 +27,12 @@ function buildClusterUri(clusterName: string): string {
 @ApiTags('Agent')
 @Controller('agent')
 export class AgentController {
-  constructor(private readonly agentService: AgentService) {}
+  constructor(
+    private readonly agentService: AgentService,
+    private readonly logger: LoggerService,
+  ) {
+    this.logger.setContext(AgentController.name);
+  }
 
   @Post('ask')
   @ApiOperation({
@@ -60,6 +66,15 @@ export class AgentController {
   async ask(@Body() body: AskAgentDto, @Res() res: Response): Promise<void> {
     const { message, clusterName, databaseName } = body;
 
+    this.logger.log({
+      message: 'Agent ask request received',
+      context: {
+        clusterName,
+        databaseName,
+        messagePreview: message.substring(0, 100),
+      },
+    });
+
     const kustoContext: KustoContext = {
       clusterUri: buildClusterUri(clusterName),
       databaseName,
@@ -71,17 +86,42 @@ export class AgentController {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.flushHeaders();
 
+    const startTime = Date.now();
+    let eventCount = 0;
+
     try {
       for await (const event of this.agentService.runAgent(
         message,
         kustoContext,
       )) {
+        eventCount++;
         const sseData = `data: ${JSON.stringify(event)}\n\n`;
         res.write(sseData);
       }
+
+      this.logger.log({
+        message: 'Agent ask request completed',
+        context: {
+          durationMs: Date.now() - startTime,
+          eventCount,
+          clusterName,
+          databaseName,
+        },
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
+
+      this.logger.error({
+        message: 'Agent ask request failed',
+        error: error instanceof Error ? error : new Error(errorMessage),
+        context: {
+          durationMs: Date.now() - startTime,
+          clusterName,
+          databaseName,
+        },
+      });
+
       const errorEvent = {
         type: 'error',
         title: 'Agent Error',

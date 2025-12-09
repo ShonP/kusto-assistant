@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { MCP_SERVERS, McpServerConfig } from '../config/mcp-servers.config';
+import { LoggerService } from '../../telemetry/logger/logger.service';
 
 interface TextContent {
   type: 'text';
@@ -31,6 +32,10 @@ export class McpClientService implements OnModuleInit, OnModuleDestroy {
   private connections: Map<string, McpConnection> = new Map();
   private allTools: MCPTool[] = [];
 
+  constructor(private readonly logger: LoggerService) {
+    this.logger.setContext(McpClientService.name);
+  }
+
   async onModuleInit() {
     await this.connectAll();
   }
@@ -44,10 +49,13 @@ export class McpClientService implements OnModuleInit, OnModuleDestroy {
    */
   async connectAll(): Promise<void> {
     const enabledServers = MCP_SERVERS.filter((s) => s.enabled);
-    console.log(
-      `Connecting to ${enabledServers.length} MCP servers:`,
-      enabledServers.map((s) => s.name),
-    );
+    this.logger.log({
+      message: 'Connecting to MCP servers',
+      context: {
+        serverCount: enabledServers.length,
+        servers: enabledServers.map((s) => s.name).join(', '),
+      },
+    });
 
     const connectionPromises = enabledServers.map((config) =>
       this.connectToServer(config),
@@ -55,17 +63,25 @@ export class McpClientService implements OnModuleInit, OnModuleDestroy {
 
     const results = await Promise.allSettled(connectionPromises);
 
-    // Log results
     results.forEach((result, index) => {
       const serverName = enabledServers[index].name;
       if (result.status === 'fulfilled') {
-        console.log(`✓ Connected to ${serverName}`);
+        this.logger.log({
+          message: 'MCP server connected',
+          context: { serverName },
+        });
       } else {
-        console.error(`✗ Failed to connect to ${serverName}:`, result.reason);
+        this.logger.error({
+          message: 'MCP server connection failed',
+          error:
+            result.reason instanceof Error
+              ? result.reason
+              : new Error(String(result.reason)),
+          context: { serverName },
+        });
       }
     });
 
-    // Aggregate all tools
     this.refreshAllTools();
   }
 
@@ -74,10 +90,15 @@ export class McpClientService implements OnModuleInit, OnModuleDestroy {
    */
   private async connectToServer(config: McpServerConfig): Promise<void> {
     try {
-      console.log(`Connecting to MCP server: ${config.name}`);
-      console.log(`  Command: ${config.command} ${config.args.join(' ')}`);
+      this.logger.log({
+        message: 'Connecting to MCP server',
+        context: {
+          serverName: config.name,
+          command: config.command,
+          args: config.args.join(' '),
+        },
+      });
 
-      // Merge environment variables, filtering out undefined values
       const mergedEnv: Record<string, string> = {};
       if (config.env) {
         for (const [key, value] of Object.entries(process.env)) {
@@ -101,7 +122,6 @@ export class McpClientService implements OnModuleInit, OnModuleDestroy {
 
       await client.connect(transport);
 
-      // Fetch tools from this server
       const result = await client.listTools();
       const tools: MCPTool[] = result.tools.map((tool) => ({
         name: tool.name,
@@ -110,10 +130,14 @@ export class McpClientService implements OnModuleInit, OnModuleDestroy {
         serverName: config.name,
       }));
 
-      console.log(
-        `  Found ${tools.length} tools:`,
-        tools.map((t) => t.name),
-      );
+      this.logger.log({
+        message: 'MCP server tools discovered',
+        context: {
+          serverName: config.name,
+          toolCount: tools.length,
+          tools: tools.map((t) => t.name).join(', '),
+        },
+      });
 
       this.connections.set(config.name, {
         config,
@@ -122,7 +146,11 @@ export class McpClientService implements OnModuleInit, OnModuleDestroy {
         tools,
       });
     } catch (error) {
-      console.error(`Failed to connect to ${config.name}:`, error);
+      this.logger.error({
+        message: 'Failed to connect to MCP server',
+        error: error instanceof Error ? error : new Error(String(error)),
+        context: { serverName: config.name },
+      });
       throw error;
     }
   }
@@ -135,7 +163,10 @@ export class McpClientService implements OnModuleInit, OnModuleDestroy {
     for (const connection of this.connections.values()) {
       this.allTools.push(...connection.tools);
     }
-    console.log(`Total tools available: ${this.allTools.length}`);
+    this.logger.log({
+      message: 'MCP tools refreshed',
+      context: { totalToolCount: this.allTools.length },
+    });
   }
 
   /**
@@ -145,9 +176,16 @@ export class McpClientService implements OnModuleInit, OnModuleDestroy {
     for (const [name, connection] of this.connections) {
       try {
         await connection.client.close();
-        console.log(`Disconnected from ${name}`);
+        this.logger.log({
+          message: 'MCP server disconnected',
+          context: { serverName: name },
+        });
       } catch (error) {
-        console.error(`Error disconnecting from ${name}:`, error);
+        this.logger.error({
+          message: 'Error disconnecting from MCP server',
+          error: error instanceof Error ? error : new Error(String(error)),
+          context: { serverName: name },
+        });
       }
     }
     this.connections.clear();
@@ -197,15 +235,29 @@ export class McpClientService implements OnModuleInit, OnModuleDestroy {
       cleanedArgs[key] = value;
     }
 
-    console.log(
-      `Calling tool ${name} on server ${tool.serverName}`,
-      cleanedArgs,
-    );
+    this.logger.log({
+      message: 'Calling MCP tool',
+      context: {
+        toolName: name,
+        serverName: tool.serverName,
+        args: JSON.stringify(cleanedArgs).substring(0, 200),
+      },
+    });
 
+    const startTime = Date.now();
     const result = (await connection.client.callTool({
       name,
       arguments: cleanedArgs,
     })) as ToolResult;
+
+    this.logger.log({
+      message: 'MCP tool call completed',
+      context: {
+        toolName: name,
+        serverName: tool.serverName,
+        durationMs: Date.now() - startTime,
+      },
+    });
 
     // Parse the text content from the result
     const textContent = result.content.find(
