@@ -1,0 +1,66 @@
+{
+  "common": {
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "copyToClipboard": "Copy to Clipboard",
+    "expand": "expand",
+    "collapse": "collapse",
+    "close": "Close",
+    "up": "Up",
+    "down": "Down"
+  },
+  "tooltip": {
+    "title": "Ctrl+K Assistant",
+    "connecting": "Connecting...",
+    "processing": "Processing...",
+    "callingTool": "Calling tool...",
+    "toolComplete": "Tool complete",
+    "error": "Error",
+    "unknownError": "Unknown error",
+    "step": "step",
+    "steps": "steps",
+    "serverUnavailable": "Server Unavailable",
+    "serverReturnedError": "Server returned error",
+    "cannotConnect": "Cannot connect to server",
+    "noReaderAvailable": "No reader available"
+  },
+  "popup": {
+    "title": "Ctrl+K Assistant",
+    "apiStatus": "API Status:",
+    "checking": "Checking...",
+    "port": "Port:",
+    "dockerHelp": "Start the backend server using Docker:",
+    "version": "v{{version}}"
+  },
+  "tabs": {
+    "status": "Status",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "themeDescription": "Choose your preferred color scheme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "status": {
+    "loading": "Checking...",
+    "healthy": "Healthy",
+    "degraded": "Degraded",
+    "unhealthy": "Unhealthy"
+  },
+  "healthChecks": {
+    "title": "Health Checks",
+    "memory_heap": "Memory (Heap)",
+    "memory_rss": "Memory (RSS)",
+    "storage": "Storage",
+    "llm": "LLM Service"
+  },
+  "docker": {
+    "title": "Backend Not Running",
+    "description": "Start the backend server with Docker:"
+  }
+}

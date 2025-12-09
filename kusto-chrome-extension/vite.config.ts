@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { crx } from '@crxjs/vite-plugin'
+import react from '@vitejs/plugin-react'
 import manifest from './src/manifest.json'
 
 export default defineConfig(({ mode }) => {
@@ -8,6 +9,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
+      react(),
       crx({ manifest }),
     ],
     define: {
