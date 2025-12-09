@@ -22,7 +22,6 @@ if (container) {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <GlobalStyles />
           <App />
         </ThemeProvider>
       </QueryClientProvider>

@@ -39,7 +39,6 @@ const openTooltip = (target: HTMLInputElement | HTMLTextAreaElement | HTMLElemen
   root.render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <GlobalStyles />
         <Tooltip target={target} onClose={removeTooltip} />
       </ThemeProvider>
     </QueryClientProvider>
