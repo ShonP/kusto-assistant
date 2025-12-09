@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'backend/**'
+      - 'kusto-chrome-extension/**'
       - '.github/workflows/build-and-push.yml'
   workflow_dispatch:
     inputs:
@@ -22,8 +23,10 @@ permissions:
   contents: read
 
 env:
-  REGISTRY_NAME: crkustoassistantprodeus2001
+  REGISTRY_NAME: crkassistprodeus2001
   IMAGE_NAME: kusto-assistant-backend
+  STORAGE_ACCOUNT_NAME: stkassistprodeus2001
+  EXTENSION_CONTAINER: extension
 
 jobs:
   build-and-push:
@@ -80,6 +83,44 @@ jobs:
           echo "**Registry:** ${{ env.REGISTRY_NAME }}.azurecr.io" >> $GITHUB_STEP_SUMMARY
           echo "**Image:** ${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "**Version:** ${{ steps.tag.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Build Chrome Extension
+        working-directory: ./kusto-chrome-extension
+        run: |
+          npm ci
+          npm run build:prod
+
+      - name: Package Chrome Extension
+        working-directory: ./kusto-chrome-extension
+        run: |
+          cd dist
+          zip -r ../kusto-assistant-${{ steps.tag.outputs.version }}.zip .
+          zip -r ../kusto-assistant-latest.zip .
+
+      - name: Upload Extension to Azure Storage
+        working-directory: ./kusto-chrome-extension
+        run: |
+          az storage blob upload \
+            --account-name ${{ env.STORAGE_ACCOUNT_NAME }} \
+            --container-name ${{ env.EXTENSION_CONTAINER }} \
+            --name kusto-assistant-${{ steps.tag.outputs.version }}.zip \
+            --file kusto-assistant-${{ steps.tag.outputs.version }}.zip \
+            --overwrite \
+            --auth-mode login
+
+          az storage blob upload \
+            --account-name ${{ env.STORAGE_ACCOUNT_NAME }} \
+            --container-name ${{ env.EXTENSION_CONTAINER }} \
+            --name kusto-assistant-latest.zip \
+            --file kusto-assistant-latest.zip \
+            --overwrite \
+            --auth-mode login
+
+      - name: Output extension download URL
+        run: |
+          echo "### Chrome Extension Uploaded! :package:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Download URL:** https://${{ env.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/${{ env.EXTENSION_CONTAINER }}/kusto-assistant-latest.zip" >> $GITHUB_STEP_SUMMARY
 
       - name: Purge old images (keep last 30)
         run: |

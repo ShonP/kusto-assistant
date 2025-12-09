@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: kustoassistant
+name: kassist
 metadata:
-  template: kustoassistant@0.1.0
+  template: kassist@0.1.0
 
 workflows:
   up:
