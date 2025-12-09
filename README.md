@@ -18,6 +18,8 @@ An AI-powered assistant for Azure Data Explorer (Kusto) that helps you write and
 - Azure OpenAI or OpenAI API access
 - Azure Data Explorer cluster access
 
+> ⚠️ **Windows Users:** Due to Windows DPAPI encryption, Azure CLI tokens from Windows cannot be read by Linux containers. You must use **WSL (Windows Subsystem for Linux)** to run Docker commands with Azure identity authentication. See the [Windows Setup with WSL](#windows-setup-with-wsl) section below.
+
 ### 1. Login to Azure
 
 The assistant needs Azure credentials to access your Kusto clusters:
@@ -28,35 +30,13 @@ az login
 
 ### 2. Pull and Run the Docker Image
 
+#### macOS / Linux
+
 ```bash
 # Pull the latest image
 docker pull crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
-```
 
-> **Windows users:** For now, skip pulling from ACR—clone the repo and build/run locally instead:
-> ```powershell
-> git clone https://github.com/ShonP/kusto-assistant.git
-> cd kusto-assistant/backend
-> docker build -t kusto-assistant-backend:local .
-> # use the local image tag (see Windows commands below)
-> ```
-
-**Option A: Azure OpenAI with Managed Identity (uses `az login` credentials)**
-
-**PowerShell (Windows):**
-```powershell
-docker run -d -p 3847:3847 `
-  -e LLM_PROVIDER=azure-openai-identity `
-  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
-  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
-  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
-  -e LLM_MODEL=gpt-5.1 `
-  -v $env:USERPROFILE\.azure:/root/.azure `
-  kusto-assistant-backend:local
-```
-
-**Bash/macOS/Linux:**
-```bash
+# Run with Azure OpenAI (Managed Identity)
 docker run -d -p 3847:3847 \
   -e LLM_PROVIDER=azure-openai-identity \
   -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ \
@@ -67,57 +47,68 @@ docker run -d -p 3847:3847 \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
-**Option B: Azure OpenAI with API Key**
+#### Windows Setup with WSL
 
-**PowerShell (Windows):**
+Windows encrypts Azure CLI tokens with DPAPI, which Linux containers cannot read. You **must** use WSL Ubuntu to run Docker with Azure identity authentication.
+
+**Step 1: Install Ubuntu for WSL (one-time setup)**
+
+Open PowerShell as Administrator and run:
 ```powershell
-docker run -d -p 3847:3847 `
-  -e LLM_PROVIDER=azure-openai-key `
-  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
-  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
-  -e AZURE_OPENAI_API_KEY=your-api-key `
-  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
-  -e LLM_MODEL=gpt-5.1 `
-  -v $env:USERPROFILE\.azure:/root/.azure:ro `
-  kusto-assistant-backend:local
+wsl --install -d Ubuntu
 ```
 
-**Bash/macOS/Linux:**
+**Step 2: Configure Docker Desktop for WSL**
+
+1. Open **Docker Desktop**
+2. Go to **Settings → Resources → WSL Integration**
+3. Enable integration with your **Ubuntu** distro
+4. Click **Apply & Restart**
+
+**Step 3: Open Ubuntu and install Azure CLI**
+
+```powershell
+wsl -d Ubuntu
+```
+
+Inside Ubuntu, run:
 ```bash
+# Install Azure CLI
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# Add yourself to docker group (to avoid using sudo)
+sudo usermod -aG docker $USER
+```
+
+Exit and restart WSL:
+```powershell
+# In PowerShell
+wsl --shutdown
+wsl -d Ubuntu
+```
+
+**Step 4: Login to Azure and run the container**
+
+Inside Ubuntu WSL:
+```bash
+# Login to Azure
+az login
+
+# Run the container
 docker run -d -p 3847:3847 \
-  -e LLM_PROVIDER=azure-openai-key \
+  -e LLM_PROVIDER=azure-openai-identity \
+  -e LLM_MODEL=gpt-5.1 \
   -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ \
   -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name \
-  -e AZURE_OPENAI_API_KEY=your-api-key \
   -e AZURE_OPENAI_API_VERSION=2024-12-01-preview \
-  -e LLM_MODEL=gpt-5.1 \
-  -v ~/.azure:/root/.azure:ro \
+  -v ~/.azure:/root/.azure \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
+
+# Verify it's running
+curl http://localhost:3847/api/v1/health
 ```
 
-**Option C: OpenAI API**
-
-**PowerShell (Windows):**
-```powershell
-docker run -d -p 3847:3847 `
-  -e LLM_PROVIDER=openai `
-  -e OPENAI_API_KEY=your-openai-api-key `
-  -e LLM_MODEL=gpt-5.1 `
-  -v $env:USERPROFILE\.azure:/root/.azure:ro `
-  kusto-assistant-backend:local
-```
-
-**Bash/macOS/Linux:**
-```bash
-docker run -d -p 3847:3847 \
-  -e LLM_PROVIDER=openai \
-  -e OPENAI_API_KEY=your-openai-api-key \
-  -e LLM_MODEL=gpt-5.1 \
-  -v ~/.azure:/root/.azure:ro \
-  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
-```
-
-> **Note:** The `-v ~/.azure:/root/.azure:ro` mount is required for all options to allow access to your Kusto clusters.
+> **Note:** You only need to run `az login` once. The tokens are stored in `~/.azure` and will be reused until they expire (~24 hours).
 
 ### 3. Install the Chrome Extension
 
@@ -171,88 +162,23 @@ You should see a response like:
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
 | `LLM_PROVIDER` | Yes | LLM provider to use | `azure-openai-identity`, `azure-openai-key`, `openai` |
-| `LLM_MODEL` | Yes | Model name | `gpt-5.1`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`, `gpt-4.1` |
+| `LLM_MODEL` | Yes | Model name | `gpt-5.1`, `gpt-4o`, `gpt-4.1` |
+| `AZURE_OPENAI_ENDPOINT` | For Azure | Azure OpenAI endpoint URL | `https://your-openai.cognitiveservices.azure.com/` |
+| `AZURE_OPENAI_DEPLOYMENT` | For Azure | Azure OpenAI deployment name | `gpt-5.1` |
+| `AZURE_OPENAI_API_VERSION` | For Azure | Azure OpenAI API version | `2024-12-01-preview` |
+| `AZURE_OPENAI_API_KEY` | For azure-openai-key | Azure OpenAI API key | `your-api-key` |
+| `OPENAI_API_KEY` | For openai | OpenAI API key | `sk-...` |
 | `PORT` | No | Server port (default: 3847) | `3847` |
 
-### Azure OpenAI with Managed Identity (Recommended)
+### LLM Provider Options
 
-Use Azure credentials from `az login`:
+| Provider | Description | Credentials Required |
+|----------|-------------|---------------------|
+| `azure-openai-identity` | Azure OpenAI with managed identity (recommended) | `az login` credentials |
+| `azure-openai-key` | Azure OpenAI with API key | `AZURE_OPENAI_API_KEY` |
+| `openai` | OpenAI API | `OPENAI_API_KEY` |
 
-**Bash/macOS/Linux:**
-```bash
-docker run -d -p 3847:3847 \
-  -e LLM_PROVIDER=azure-openai-identity \
-  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ \
-  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name \
-  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview \
-  -e LLM_MODEL=gpt-5.1 \
-  -v ~/.azure:/root/.azure:ro \
-  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
-```
-
-**PowerShell (Windows):**
-```powershell
-docker run -d -p 3847:3847 `
-  -e LLM_PROVIDER=azure-openai-identity `
-  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
-  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
-  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
-  -e LLM_MODEL=gpt-5.1 `
-  -v $env:USERPROFILE\.azure:/root/.azure:ro `
-  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
-```
-
-### Azure OpenAI with API Key
-
-**Bash/macOS/Linux:**
-```bash
-docker run -d -p 3847:3847 \
-  -e LLM_PROVIDER=azure-openai-key \
-  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ \
-  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name \
-  -e AZURE_OPENAI_API_KEY=your-api-key \
-  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview \
-  -e LLM_MODEL=gpt-5.1 \
-  -v ~/.azure:/root/.azure:ro \
-  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
-```
-
-**PowerShell (Windows):**
-```powershell
-docker run -d -p 3847:3847 `
-  -e LLM_PROVIDER=azure-openai-key `
-  -e AZURE_OPENAI_ENDPOINT=https://your-openai.cognitiveservices.azure.com/ `
-  -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
-  -e AZURE_OPENAI_API_KEY=your-api-key `
-  -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
-  -e LLM_MODEL=gpt-5.1 `
-  -v $env:USERPROFILE\.azure:/root/.azure:ro `
-  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
-```
-
-### OpenAI API
-
-**Bash/macOS/Linux:**
-```bash
-docker run -d -p 3847:3847 \
-  -e LLM_PROVIDER=openai \
-  -e OPENAI_API_KEY=your-openai-api-key \
-  -e LLM_MODEL=gpt-5.1 \
-  -v ~/.azure:/root/.azure:ro \
-  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
-```
-
-**PowerShell (Windows):**
-```powershell
-docker run -d -p 3847:3847 `
-  -e LLM_PROVIDER=openai `
-  -e OPENAI_API_KEY=your-openai-api-key `
-  -e LLM_MODEL=gpt-5.1 `
-  -v $env:USERPROFILE\.azure:/root/.azure:ro `
-  crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
-```
-
-> **Note:** The `-v ~/.azure:/root/.azure:ro` (or `$env:USERPROFILE\.azure` on Windows) mount is required for all providers to allow access to your Kusto clusters.
+> **Note:** The volume mount `-v ~/.azure:/root/.azure` is required for all providers to allow access to your Kusto clusters via Azure credentials.
 
 ## Health Check
 
@@ -283,6 +209,12 @@ Expected response:
 ```
 
 ## Troubleshooting
+
+### Windows: "User does not exist in MSAL token cache" Error
+
+This error occurs when running Docker on Windows because Windows encrypts Azure CLI tokens with DPAPI, which Linux containers cannot decrypt.
+
+**Solution:** Use WSL Ubuntu instead of PowerShell. See [Windows Setup with WSL](#windows-setup-with-wsl) above.
 
 ### Cannot connect to Kusto cluster
 
