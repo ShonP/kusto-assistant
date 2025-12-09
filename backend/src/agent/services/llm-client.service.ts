@@ -6,7 +6,25 @@ import {
   getBearerTokenProvider,
 } from '@azure/identity';
 import { setDefaultOpenAIClient, setOpenAIAPI } from '@openai/agents';
-import { ILlmConfig, LlmProviderType } from '../config/llm.config';
+
+export type LlmProviderType =
+  | 'openai'
+  | 'azure-openai-key'
+  | 'azure-openai-identity';
+
+export interface ILlmConfig {
+  provider: LlmProviderType;
+  model: string;
+  openai?: {
+    apiKey: string;
+  };
+  azureOpenai?: {
+    endpoint: string;
+    deployment: string;
+    apiKey?: string;
+    apiVersion: string;
+  };
+}
 
 export interface ILlmClientInfo {
   client: OpenAI | AzureOpenAI;
