@@ -21,8 +21,7 @@ async function bootstrap() {
 
   app.use(helmet());
   app.enableCors({
-    origin: configService.get<string | string[]>('cors.origin') || '*',
-    credentials: true,
+    origin: configService.get<string | string[]>('cors.origin'),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });

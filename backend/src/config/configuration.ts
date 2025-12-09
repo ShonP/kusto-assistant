@@ -7,7 +7,8 @@ export default () => ({
       ? process.env.CORS_ORIGIN.split(',')
           .map((origin) => origin.trim())
           .filter(Boolean)
-      : [],
+          .join(',')
+      : '*',
   },
 
   throttle: {

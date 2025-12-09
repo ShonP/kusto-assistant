@@ -1,25 +1,25 @@
+import axios from 'axios'
 import type { IAgentEvent, IStep } from './types'
 import { getKustoContext, escapeHtml } from './utils'
 import { API_BASE_URL, API_PORT } from '../config'
 
 export async function checkServerHealth(): Promise<{ healthy: boolean; message: string }> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/health`, {
-      method: 'GET',
-      signal: AbortSignal.timeout(5000),
+    const response = await axios.get(`${API_BASE_URL}/health`, {
+      timeout: 5000,
     })
 
-    if (!response.ok) {
+    if (response.status !== 200) {
       return { healthy: false, message: `HTTP ${response.status}` }
     }
 
     return { healthy: true, message: 'Service is running' }
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+    if (axios.isAxiosError(error)) {
+      if (error.code === 'ECONNABORTED') {
         return { healthy: false, message: 'Connection timed out' }
       }
-      return { healthy: false, message: 'Cannot connect to server' }
+      return { healthy: false, message: error.message || 'Cannot connect to server' }
     }
     return { healthy: false, message: 'Unknown error' }
   }
