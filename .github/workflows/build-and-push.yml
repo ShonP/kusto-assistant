@@ -122,9 +122,46 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Download URL:** https://${{ env.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/${{ env.EXTENSION_CONTAINER }}/kusto-assistant-latest.zip" >> $GITHUB_STEP_SUMMARY
 
-      - name: Purge old images (keep last 30)
+      - name: Purge old images (keep last 10)
         run: |
-          az acr run \
-            --registry ${{ env.REGISTRY_NAME }} \
-            --cmd "acr purge --filter '${{ env.IMAGE_NAME }}:.*' --ago 30d --keep 30 --untagged" \
-            /dev/null
+          # Get all tags sorted by creation time, skip the 10 most recent
+          TAGS=$(az acr repository show-tags \
+            --name ${{ env.REGISTRY_NAME }} \
+            --repository ${{ env.IMAGE_NAME }} \
+            --orderby time_asc \
+            --output tsv 2>/dev/null || echo "")
+          
+          if [ -z "$TAGS" ]; then
+            echo "No tags found or repository doesn't exist yet"
+            exit 0
+          fi
+          
+          # Count total tags
+          TOTAL=$(echo "$TAGS" | wc -l | tr -d ' ')
+          KEEP=10
+          
+          if [ "$TOTAL" -le "$KEEP" ]; then
+            echo "Only $TOTAL tags exist, keeping all (threshold: $KEEP)"
+            exit 0
+          fi
+          
+          # Calculate how many to delete
+          DELETE_COUNT=$((TOTAL - KEEP))
+          echo "Found $TOTAL tags, will delete $DELETE_COUNT old tags"
+          
+          # Get tags to delete (oldest ones)
+          TAGS_TO_DELETE=$(echo "$TAGS" | head -n $DELETE_COUNT)
+          
+          for TAG in $TAGS_TO_DELETE; do
+            # Skip 'latest' tag
+            if [ "$TAG" = "latest" ]; then
+              continue
+            fi
+            echo "Deleting ${{ env.IMAGE_NAME }}:$TAG"
+            az acr repository delete \
+              --name ${{ env.REGISTRY_NAME }} \
+              --image "${{ env.IMAGE_NAME }}:$TAG" \
+              --yes || true
+          done
+          
+          echo "Cleanup complete"
