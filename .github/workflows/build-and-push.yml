@@ -100,6 +100,13 @@ jobs:
           zip -r ../kusto-assistant-${{ steps.tag.outputs.version }}.zip .
           zip -r ../kusto-assistant-latest.zip .
 
+      - name: Re-authenticate to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       - name: Upload Extension to Azure Storage
         working-directory: ./kusto-chrome-extension
         run: |

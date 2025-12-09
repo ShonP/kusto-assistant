@@ -43,7 +43,7 @@ docker run -d -p 3847:3847 \
   -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name \
   -e AZURE_OPENAI_API_VERSION=2024-12-01-preview \
   -e LLM_MODEL=gpt-5.1 \
-  -v ~/.azure:/root/.azure:ro \
+  -v ~/.azure:/root/.azure \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
@@ -55,7 +55,7 @@ docker run -d -p 3847:3847 `
   -e AZURE_OPENAI_DEPLOYMENT=your-deployment-name `
   -e AZURE_OPENAI_API_VERSION=2024-12-01-preview `
   -e LLM_MODEL=gpt-5.1 `
-  -v $env:USERPROFILE\.azure:/root/.azure:ro `
+  -v $env:USERPROFILE\.azure:/root/.azure `
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
 
