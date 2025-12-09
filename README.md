@@ -66,7 +66,7 @@ docker run -d -p 3847:3847 \
 docker run -d -p 3847:3847 \
   -e LLM_PROVIDER=openai \
   -e OPENAI_API_KEY=your-openai-api-key \
-  -e LLM_MODEL=gpt-4.1 \
+  -e LLM_MODEL=gpt-5.1 \
   -v ~/.azure:/root/.azure:ro \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
@@ -133,7 +133,7 @@ docker run -d -p 3847:3847 \
 docker run -d -p 3847:3847 \
   -e LLM_PROVIDER=openai \
   -e OPENAI_API_KEY=your-openai-api-key \
-  -e LLM_MODEL=gpt-4.1 \
+  -e LLM_MODEL=gpt-5.1 \
   -v ~/.azure:/root/.azure:ro \
   crkassistprodeus2001.azurecr.io/kusto-assistant-backend:latest
 ```
