@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Ctrl+K Assistant",
+  "version": "1.0.0",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Ctrl+K Assistant"
+  },
+  "background": {
+    "service_worker": "background.ts"
+  },
+  "commands": {
+    "open-autocomplete": {
+      "suggested_key": {
+        "default": "Ctrl+K",
+        "mac": "Command+K"
+      },
+      "description": "Open tooltip"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/index.ts"],
+      "css": ["styles.css"]
+    }
+  ]
+}

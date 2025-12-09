@@ -1,0 +1,12 @@
+{
+  "name": "kusto-assistant",
+  "version": "1.0.0",
+  "description": "Kusto Assistant is an AI-powered tool designed to help users interact with Kusto databases more efficiently. It leverages natural language processing to translate user queries into Kusto Query Language (KQL) commands, making data retrieval and analysis easier for both technical and non-technical users.",
+  "workspaces": [
+    "backend",
+    "kusto-chrome-extension"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
