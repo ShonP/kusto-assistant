@@ -4,6 +4,7 @@ import { ThemeProvider } from '../hooks/useTheme'
 import { GlobalStyles } from '../styles'
 import '../config/i18n'
 import { Tooltip } from '../components/Tooltip'
+import { KeyboardHint } from '../components/KeyboardHint'
 import type { AgentMode } from '../types/content.types'
 
 const queryClient = new QueryClient({
@@ -17,6 +18,36 @@ const queryClient = new QueryClient({
 
 let root: Root | null = null
 let container: HTMLDivElement | null = null
+let hintRoot: Root | null = null
+let hintContainer: HTMLDivElement | null = null
+
+const removeHint = () => {
+  if (hintRoot) {
+    hintRoot.unmount()
+    hintRoot = null
+  }
+  if (hintContainer) {
+    hintContainer.remove()
+    hintContainer = null
+  }
+}
+
+const showKeyboardHint = () => {
+  removeHint()
+
+  hintContainer = document.createElement('div')
+  hintContainer.id = 'ctrlk-hint-root'
+  document.body.appendChild(hintContainer)
+
+  hintRoot = createRoot(hintContainer)
+  hintRoot.render(
+    <ThemeProvider>
+      <KeyboardHint visible={true} />
+    </ThemeProvider>
+  )
+
+  setTimeout(removeHint, 1500)
+}
 
 const removeTooltip = () => {
   if (root) {
@@ -61,6 +92,7 @@ chrome.runtime.onMessage.addListener((msg: { action: string; mode?: AgentMode })
         active.tagName === 'TEXTAREA' ||
         active.isContentEditable)
     ) {
+      showKeyboardHint()
       openTooltip({
         target: active as HTMLInputElement | HTMLTextAreaElement,
         mode: msg.mode || 'autocomplete',
