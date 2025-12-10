@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Logger } from '@nestjs/common';
 import {
   HealthCheck,
   HealthCheckService,
@@ -21,6 +21,7 @@ interface IHealthResponse {
 
 @Controller('health')
 export class HealthController {
+  private readonly logger = new Logger(HealthController.name);
   private readonly memoryHeapThreshold: number;
   private readonly memoryRssThreshold: number;
   private readonly imageTag: string;
@@ -42,6 +43,7 @@ export class HealthController {
   @Get()
   @HealthCheck()
   async getHealth(): Promise<IHealthResponse> {
+    this.logger.log('Checking system health...');
     const checks = [
       {
         name: 'memory_heap',
@@ -74,16 +76,25 @@ export class HealthController {
           Object.assign(results, result);
         } catch (error) {
           hasError = true;
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          this.logger.error(
+            `Health check failed for ${check.name}: ${errorMessage}`,
+            error instanceof Error ? error.stack : undefined,
+          );
           errors[check.name] = {
             status: 'down',
-            error: error instanceof Error ? error.message : String(error),
+            error: errorMessage,
           };
         }
       }),
     );
 
+    const status = hasError ? 'degraded' : 'ok';
+    this.logger.log(`Health check completed. Status: ${status}`);
+
     return {
-      status: hasError ? 'degraded' : 'ok',
+      status,
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       version: this.imageTag,
