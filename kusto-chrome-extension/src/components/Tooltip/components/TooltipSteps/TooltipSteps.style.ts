@@ -9,7 +9,7 @@ const slideDown = keyframes`
   }
   to {
     opacity: 1;
-    max-height: 150px;
+    max-height: 300px;
     transform: translateY(0);
   }
 `
@@ -64,7 +64,7 @@ export const Toggle = styled.div`
 export const StepsListContainer = styled.div<{ $expanded: boolean }>`
   display: ${({ $expanded }) => ($expanded ? 'block' : 'none')};
   margin-block-start: ${({ theme }) => theme.spacing.sm};
-  max-height: 150px;
+  max-height: 300px;
   overflow-y: auto;
   direction: ltr;
   animation: ${slideDown} 0.3s cubic-bezier(0.16, 1, 0.3, 1);

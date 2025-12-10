@@ -1,4 +1,4 @@
-import { type FC, useState, useRef } from 'react'
+import { type FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BarChart3, PieChart as PieChartIcon, TrendingUp } from 'lucide-react'
 import {
@@ -21,12 +21,9 @@ import {
   LineChartSvg,
   LineChartPath,
   LineChartArea,
+  LineChartDot,
   LineChartLabels,
   LineChartLabel,
-  ChartTooltip,
-  ChartTooltipLabel,
-  ChartTooltipValue,
-  LineChartDotHover,
 } from './ChartView.style'
 import type { IChartViewProps } from './ChartView.types'
 
@@ -71,8 +68,6 @@ const BarChartView: FC<IChartViewProps> = ({ chartData }) => {
 
 const LineChartView: FC<IChartViewProps> = ({ chartData }) => {
   const { labels, values } = chartData
-  const [hoveredPoint, setHoveredPoint] = useState<{ index: number; x: number; y: number } | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   const maxValue = Math.max(...values)
   const minValue = Math.min(...values)
@@ -94,41 +89,13 @@ const LineChartView: FC<IChartViewProps> = ({ chartData }) => {
   const firstLabel = labels[0] || ''
   const lastLabel = labels[labels.length - 1] || ''
 
-  const handleMouseEnter = (index: number, e: React.MouseEvent<SVGCircleElement>) => {
-    const container = containerRef.current
-    if (!container) return
-    const rect = container.getBoundingClientRect()
-    const svgRect = e.currentTarget.ownerSVGElement?.getBoundingClientRect()
-    if (!svgRect) return
-
-    const scaleX = svgRect.width / width
-    const scaleY = svgRect.height / height
-    const x = points[index].x * scaleX
-    const y = points[index].y * scaleY
-
-    setHoveredPoint({ index, x, y })
-  }
-
   return (
-    <LineChartContainer ref={containerRef}>
-      {hoveredPoint && (
-        <ChartTooltip $x={hoveredPoint.x} $y={hoveredPoint.y} $visible={true}>
-          <ChartTooltipLabel>{points[hoveredPoint.index].label}</ChartTooltipLabel>
-          <ChartTooltipValue>{formatNumber(points[hoveredPoint.index].value)}</ChartTooltipValue>
-        </ChartTooltip>
-      )}
+    <LineChartContainer>
       <LineChartSvg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
         <LineChartArea d={areaPath} />
         <LineChartPath d={linePath} />
         {points.map((p, i) => (
-          <LineChartDotHover
-            key={i}
-            cx={p.x}
-            cy={p.y}
-            r={4}
-            onMouseEnter={(e) => handleMouseEnter(i, e)}
-            onMouseLeave={() => setHoveredPoint(null)}
-          />
+          <LineChartDot key={i} cx={p.x} cy={p.y} r={3} />
         ))}
       </LineChartSvg>
       <LineChartLabels>

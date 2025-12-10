@@ -163,7 +163,7 @@ export const LineChartContainer = styled.div`
 
 export const LineChartSvg = styled.svg`
   width: 100%;
-  height: 100px;
+  height: 100%;
 `
 
 export const LineChartPath = styled.path`
@@ -194,46 +194,4 @@ export const LineChartLabels = styled.div`
 export const LineChartLabel = styled.span`
   font-size: 9px;
   color: ${({ theme }) => theme.colors.textMuted};
-`
-
-export const LineChartDotHover = styled.circle`
-  fill: ${({ theme }) => theme.colors.accent};
-  stroke: ${({ theme }) => theme.colors.surface};
-  stroke-width: 2;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-
-  &:hover {
-    transform: scale(1.5);
-    transform-origin: center;
-  }
-`
-
-export const ChartTooltip = styled.div<{ $x: number; $y: number; $visible: boolean }>`
-  position: absolute;
-  top: ${({ $y }) => $y}px;
-  left: ${({ $x }) => $x}px;
-  transform: translate(-50%, -100%);
-  margin-top: -8px;
-  background-color: ${({ theme }) => theme.colors.background};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.borderRadius.sm};
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
-  font-size: ${({ theme }) => theme.fontSize.xs};
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  transition: opacity 0.15s ease;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-`
-
-export const ChartTooltipLabel = styled.div`
-  color: ${({ theme }) => theme.colors.textSecondary};
-  font-size: 10px;
-`
-
-export const ChartTooltipValue = styled.div`
-  color: ${({ theme }) => theme.colors.text};
-  font-weight: 600;
 `

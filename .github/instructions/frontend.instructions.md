@@ -9,9 +9,8 @@ Review your changes according to the guidelines below:
 - Use mobile first approach 
 - Design should be simple and sleek apple style
 - Use styled of emotion using `import styled from '@emotion/styled';`
-- Use shadcn/ui and tailwind for styling
 - Use margin-inline or margin-block no right or left or top or bottom.
-- Use Emotion for creating custom styles on shadcn/ui components
+- Use Emotion for creating custom styles
 - Support dark mode and light mode
 - Use theme always don't hardcode colors
 - Don't use inline styles or sx prop for styling and instead use styled of Emotion
