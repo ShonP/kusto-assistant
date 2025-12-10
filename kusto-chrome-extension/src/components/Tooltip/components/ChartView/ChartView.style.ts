@@ -55,8 +55,9 @@ export const BarChartContainer = styled.div`
   display: flex;
   align-items: flex-end;
   gap: ${({ theme }) => theme.spacing.xs};
-  height: 100px;
+  height: 120px;
   padding: ${({ theme }) => theme.spacing.sm};
+  padding-block-end: ${({ theme }) => theme.spacing.xs};
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: ${({ theme }) => theme.borderRadius.md};
 `
@@ -65,27 +66,31 @@ export const BarWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs};
+  justify-content: flex-end;
+  gap: 2px;
   flex: 1;
   min-width: 0;
+  height: 100%;
 `
 
 export const Bar = styled.div<{ $height: number; $delay: number }>`
   width: 100%;
-  max-width: 40px;
+  max-width: 32px;
   height: ${({ $height }) => $height}%;
+  min-height: 4px;
   background: linear-gradient(
     180deg,
     ${({ theme }) => theme.colors.accent} 0%,
-    ${({ theme }) => theme.colors.success} 100%
+    ${({ theme }) => theme.colors.accent}99 100%
   );
   border-radius: ${({ theme }) => theme.borderRadius.sm} ${({ theme }) => theme.borderRadius.sm} 0 0;
   transform-origin: bottom;
   animation: ${growBar} 0.4s ease-out ${({ $delay }) => $delay}ms both;
+  box-shadow: 0 0 8px ${({ theme }) => theme.colors.accent}40;
 `
 
 export const BarLabel = styled.span`
-  font-size: 10px;
+  font-size: 9px;
   color: ${({ theme }) => theme.colors.textMuted};
   text-align: center;
   max-width: 100%;
@@ -95,7 +100,7 @@ export const BarLabel = styled.span`
 `
 
 export const BarValue = styled.span`
-  font-size: 10px;
+  font-size: 9px;
   color: ${({ theme }) => theme.colors.textSecondary};
   font-weight: 500;
 `

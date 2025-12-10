@@ -44,13 +44,27 @@ const formatNumber = (num: number): string => {
   return num.toString()
 }
 
+const formatLabel = (label: string): string => {
+  if (label.includes('T') && label.includes('Z')) {
+    const date = new Date(label)
+    if (!isNaN(date.getTime())) {
+      return `${date.getMonth() + 1}/${date.getDate()}`
+    }
+  }
+  if (label.length > 8) {
+    return label.substring(0, 6) + '...'
+  }
+  return label
+}
+
 const BarChartView: FC<IChartViewProps> = ({ chartData }) => {
   const { labels, values } = chartData
   const maxValue = Math.max(...values)
   const displayData = labels.slice(0, 8).map((label, i) => ({
-    label,
+    label: formatLabel(label),
+    fullLabel: label,
     value: values[i],
-    height: maxValue > 0 ? (values[i] / maxValue) * 100 : 0,
+    height: maxValue > 0 ? Math.max((values[i] / maxValue) * 100, 2) : 0,
   }))
 
   return (
@@ -59,7 +73,7 @@ const BarChartView: FC<IChartViewProps> = ({ chartData }) => {
         <BarWrapper key={index}>
           <BarValue>{formatNumber(item.value)}</BarValue>
           <Bar $height={item.height} $delay={index * 50} />
-          <BarLabel title={item.label}>{item.label}</BarLabel>
+          <BarLabel title={item.fullLabel}>{item.label}</BarLabel>
         </BarWrapper>
       ))}
     </BarChartContainer>
