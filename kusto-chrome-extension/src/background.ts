@@ -6,7 +6,6 @@ chrome.commands.onCommand.addListener((command) => {
 
       if (!tabId || !tab.url) return
 
-      // Skip chrome:// and other restricted URLs
       if (
         tab.url.startsWith('chrome://') ||
         tab.url.startsWith('chrome-extension://') ||
@@ -16,11 +15,11 @@ chrome.commands.onCommand.addListener((command) => {
         return
       }
 
+      const message = { action: 'open_popup' }
+
       try {
-        // Try to send message to content script
-        await chrome.tabs.sendMessage(tabId, { action: 'open_popup' })
+        await chrome.tabs.sendMessage(tabId, message)
       } catch {
-        // Content script not loaded - inject it first
         console.log('Injecting content script...')
 
         await chrome.scripting.executeScript({
@@ -33,9 +32,8 @@ chrome.commands.onCommand.addListener((command) => {
           files: ['styles.css'],
         })
 
-        // Wait a moment for script to initialize, then send message
         setTimeout(() => {
-          chrome.tabs.sendMessage(tabId, { action: 'open_popup' })
+          chrome.tabs.sendMessage(tabId, message)
         }, 100)
       }
     })

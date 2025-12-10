@@ -16,7 +16,7 @@
         "default": "Alt+K",
         "mac": "Command+K"
       },
-      "description": "Open tooltip"
+      "description": "Open Kusto Assistant"
     }
   },
   "content_scripts": [

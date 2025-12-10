@@ -11,11 +11,14 @@ import {
   TooltipSteps,
   TooltipActions,
   UnhealthyState,
+  QueryPreview,
+  QueryResults,
+  ChartView,
 } from './components'
 
 const DOCKER_COMMAND = `docker run -p ${API_PORT}:${API_PORT} kusto-agent`
 
-export const Tooltip: FC<ITooltipProps> = ({ target, onClose }) => {
+export const Tooltip: FC<ITooltipProps> = ({ target, mode = 'autocomplete', onClose }) => {
   const { t } = useTranslation()
 
   const {
@@ -29,10 +32,13 @@ export const Tooltip: FC<ITooltipProps> = ({ target, onClose }) => {
     stepsExpanded,
     copied,
     position,
+    queryPreview,
+    queryResult,
+    chartData,
     handleRetry,
     handleCopy,
     toggleSteps,
-  } = useTooltip({ target })
+  } = useTooltip({ target, mode })
 
   if (isHealthy === false) {
     return (
@@ -47,18 +53,28 @@ export const Tooltip: FC<ITooltipProps> = ({ target, onClose }) => {
     )
   }
 
+  const showQueryPreview = queryPreview && !result
+  const copyableContent = queryPreview || result
+  const isStreaming = !isComplete
+
   return (
     <Container style={{ top: position.top, left: position.left }}>
       <TooltipHeader title={t('tooltip.title')} onClose={onClose} />
 
-      {!isComplete && !result && <TooltipStatus status={status} />}
+      {isStreaming && <TooltipStatus status={status} />}
+
+      {showQueryPreview && <QueryPreview query={queryPreview} />}
 
       {result && <TooltipResult result={result} hasError={hasError} />}
 
+      {chartData && <ChartView chartData={chartData} />}
+
+      {queryResult && <QueryResults queryResult={queryResult} />}
+
       <TooltipSteps steps={steps} expanded={stepsExpanded} onToggle={toggleSteps} isComplete={isComplete} />
 
-      {isComplete && result && !hasError && (
-        <TooltipActions result={result} copied={copied} onCopy={handleCopy} />
+      {(isComplete || queryPreview) && copyableContent && !hasError && (
+        <TooltipActions result={copyableContent} copied={copied} onCopy={handleCopy} />
       )}
     </Container>
   )

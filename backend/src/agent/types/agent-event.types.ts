@@ -3,11 +3,16 @@
  * These are the events streamed to the client via SSE
  */
 
+export type AgentMode = 'autocomplete' | 'execute';
+
 export interface AgentEvent {
   type:
     | 'annotation'
     | 'tool_call'
     | 'tool_result'
+    | 'query_preview'
+    | 'query_result'
+    | 'chart_data'
     | 'message'
     | 'error'
     | 'done';
@@ -37,6 +42,34 @@ export interface ToolResultEvent extends AgentEvent {
   };
 }
 
+export interface QueryPreviewEvent extends AgentEvent {
+  type: 'query_preview';
+  data: {
+    query: string;
+    isComplete: boolean;
+  };
+}
+
+export interface QueryResultEvent extends AgentEvent {
+  type: 'query_result';
+  data: {
+    query: string;
+    columns: Array<{ name: string; type: string }>;
+    rows: Array<Record<string, unknown>>;
+    rowCount: number;
+  };
+}
+
+export interface ChartDataEvent extends AgentEvent {
+  type: 'chart_data';
+  data: {
+    chartType: 'bar' | 'pie' | 'line';
+    labels: string[];
+    values: number[];
+    title: string;
+  };
+}
+
 export interface MessageEvent extends AgentEvent {
   type: 'message';
   data: {
@@ -62,6 +95,9 @@ export type AgentStreamEvent =
   | AnnotationEvent
   | ToolCallEvent
   | ToolResultEvent
+  | QueryPreviewEvent
+  | QueryResultEvent
+  | ChartDataEvent
   | MessageEvent
   | ErrorEvent
   | DoneEvent;

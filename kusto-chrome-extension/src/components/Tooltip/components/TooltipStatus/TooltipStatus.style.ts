@@ -51,7 +51,6 @@ export const PulsingDotWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-block-start: 2px;
 `
 
 export const PulsingDot = styled.div`

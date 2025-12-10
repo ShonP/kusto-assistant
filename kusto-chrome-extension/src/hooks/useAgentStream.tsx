@@ -1,12 +1,13 @@
 import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Sparkles, Wrench, CheckCircle, XCircle } from 'lucide-react'
+import { Sparkles, Wrench, CheckCircle, XCircle, Code, Database, BarChart3 } from 'lucide-react'
 import { agentApi } from '../api/agent.api'
 import { getKustoContext, getInputValue } from '../utils/content.utils'
-import type { IStep, IAgentEvent } from '../types/content.types'
+import type { IStep, IAgentEvent, IQueryResult, IChartData, AgentMode } from '../types/content.types'
 
 interface IUseAgentStreamParams {
   target: HTMLElement
+  mode?: AgentMode
 }
 
 interface IUseAgentStreamReturn {
@@ -16,13 +17,16 @@ interface IUseAgentStreamReturn {
   steps: IStep[]
   isComplete: boolean
   isStreaming: boolean
+  queryPreview: string | null
+  queryResult: IQueryResult | null
+  chartData: IChartData | null
   startStream: () => void
   abortStream: () => void
   reset: () => void
 }
 
 export const useAgentStream = (args: IUseAgentStreamParams): IUseAgentStreamReturn => {
-  const { target } = args
+  const { target, mode = 'autocomplete' } = args
   const { t } = useTranslation()
 
   const [status, setStatus] = useState('')
@@ -31,15 +35,20 @@ export const useAgentStream = (args: IUseAgentStreamParams): IUseAgentStreamRetu
   const [steps, setSteps] = useState<IStep[]>([])
   const [isComplete, setIsComplete] = useState(false)
   const [isStreaming, setIsStreaming] = useState(false)
+  const [queryPreview, setQueryPreview] = useState<string | null>(null)
+  const [queryResult, setQueryResult] = useState<IQueryResult | null>(null)
+  const [chartData, setChartData] = useState<IChartData | null>(null)
 
   const abortControllerRef = useRef<AbortController | null>(null)
   const targetRef = useRef(target)
+  const modeRef = useRef(mode)
   const tRef = useRef(t)
 
   useEffect(() => {
     targetRef.current = target
+    modeRef.current = mode
     tRef.current = t
-  }, [target, t])
+  }, [target, mode, t])
 
   useEffect(() => {
     setStatus(t('tooltip.connecting'))
@@ -82,6 +91,48 @@ export const useAgentStream = (args: IUseAgentStreamParams): IUseAgentStreamRetu
             event.data
           )
           setStatus(event.title || translate('tooltip.toolComplete'))
+          break
+        case 'query_preview':
+          if (event.data?.query) {
+            setQueryPreview(event.data.query)
+            addStep(
+              <Code size={14} />,
+              translate('tooltip.queryGenerated'),
+              translate('tooltip.queryPreviewDescription')
+            )
+            setStatus(translate('tooltip.queryGenerated'))
+          }
+          break
+        case 'query_result':
+          if (event.data?.columns && event.data?.rows) {
+            setQueryResult({
+              query: event.data.query || '',
+              columns: event.data.columns,
+              rows: event.data.rows,
+              rowCount: event.data.rowCount || event.data.rows.length,
+            })
+            addStep(
+              <Database size={14} />,
+              translate('tooltip.queryExecuted'),
+              translate('tooltip.rowsReturned', { count: event.data.rowCount || event.data.rows.length })
+            )
+            setStatus(translate('tooltip.queryExecuted'))
+          }
+          break
+        case 'chart_data':
+          if (event.data?.chartType && event.data?.labels && event.data?.values) {
+            setChartData({
+              chartType: event.data.chartType,
+              labels: event.data.labels,
+              values: event.data.values,
+              title: event.title || '',
+            })
+            addStep(
+              <BarChart3 size={14} />,
+              translate('tooltip.chartReady'),
+              event.title
+            )
+          }
           break
         case 'message':
           if (event.data?.content) {
@@ -154,6 +205,9 @@ export const useAgentStream = (args: IUseAgentStreamParams): IUseAgentStreamRetu
     setHasError(false)
     setSteps([])
     setIsComplete(false)
+    setQueryPreview(null)
+    setQueryResult(null)
+    setChartData(null)
   }, [abortStream])
 
   return {
@@ -163,6 +217,9 @@ export const useAgentStream = (args: IUseAgentStreamParams): IUseAgentStreamRetu
     steps,
     isComplete,
     isStreaming,
+    queryPreview,
+    queryResult,
+    chartData,
     startStream,
     abortStream,
     reset,

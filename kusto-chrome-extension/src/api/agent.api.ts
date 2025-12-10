@@ -1,10 +1,10 @@
 import { apiClient } from './instance'
-import type { IKustoContext, IAgentEvent } from '../types/content.types'
+import type { IAgentEvent, IKustoContext } from '../types/content.types'
 
 export interface IAgentAskParams {
   message: string
-  clusterName: string | null
-  databaseName: string | null
+  clusterName: string
+  databaseName: string
 }
 
 export interface IAgentStreamCallbacks {

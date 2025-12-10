@@ -4,6 +4,7 @@ import { ThemeProvider } from '../hooks/useTheme'
 import { GlobalStyles } from '../styles'
 import '../config/i18n'
 import { Tooltip } from '../components/Tooltip'
+import type { AgentMode } from '../types/content.types'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,7 +29,11 @@ const removeTooltip = () => {
   }
 }
 
-const openTooltip = (target: HTMLInputElement | HTMLTextAreaElement | HTMLElement) => {
+const openTooltip = (args: {
+  target: HTMLInputElement | HTMLTextAreaElement | HTMLElement
+  mode: AgentMode
+}) => {
+  const { target, mode } = args
   removeTooltip()
 
   container = document.createElement('div')
@@ -39,13 +44,13 @@ const openTooltip = (target: HTMLInputElement | HTMLTextAreaElement | HTMLElemen
   root.render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <Tooltip target={target} onClose={removeTooltip} />
+        <Tooltip target={target} mode={mode} onClose={removeTooltip} />
       </ThemeProvider>
     </QueryClientProvider>
   )
 }
 
-chrome.runtime.onMessage.addListener((msg: { action: string }) => {
+chrome.runtime.onMessage.addListener((msg: { action: string; mode?: AgentMode }) => {
   if (msg.action === 'open_popup') {
     const active = document.activeElement as HTMLElement
 
@@ -55,7 +60,10 @@ chrome.runtime.onMessage.addListener((msg: { action: string }) => {
         active.tagName === 'TEXTAREA' ||
         active.isContentEditable)
     ) {
-      openTooltip(active as HTMLInputElement | HTMLTextAreaElement)
+      openTooltip({
+        target: active as HTMLInputElement | HTMLTextAreaElement,
+        mode: msg.mode || 'autocomplete',
+      })
     }
   }
 })

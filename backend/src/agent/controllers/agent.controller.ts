@@ -90,10 +90,10 @@ export class AgentController {
     let eventCount = 0;
 
     try {
-      for await (const event of this.agentService.runAgent(
-        message,
+      for await (const event of this.agentService.runAgent({
+        userMessage: message,
         kustoContext,
-      )) {
+      })) {
         eventCount++;
         const sseData = `data: ${JSON.stringify(event)}\n\n`;
         res.write(sseData);

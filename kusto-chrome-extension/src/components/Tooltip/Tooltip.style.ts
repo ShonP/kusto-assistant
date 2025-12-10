@@ -2,6 +2,9 @@ import styled from '@emotion/styled'
 
 export const Container = styled.div`
   position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md};
   padding: ${({ theme }) => theme.spacing.md};
   background: ${({ theme }) => theme.colors.background};
   border: 1px solid ${({ theme }) => theme.colors.border};

@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHealthQuery } from '../../queries/useHealthQuery'
 import { useAgentStream } from '../../hooks/useAgentStream'
+import type { IQueryResult, IChartData, AgentMode } from '../../types/content.types'
 
 interface IUseTooltipParams {
   target: HTMLElement
+  mode?: AgentMode
 }
 
 interface IUseTooltipReturn {
@@ -18,13 +20,16 @@ interface IUseTooltipReturn {
   stepsExpanded: boolean
   copied: boolean
   position: { top: number; left: number }
+  queryPreview: string | null
+  queryResult: IQueryResult | null
+  chartData: IChartData | null
   handleRetry: () => void
   handleCopy: () => void
   toggleSteps: () => void
 }
 
 export const useTooltip = (args: IUseTooltipParams): IUseTooltipReturn => {
-  const { target } = args
+  const { target, mode = 'autocomplete' } = args
   const { t } = useTranslation()
 
   const [stepsExpanded, setStepsExpanded] = useState(false)
@@ -34,7 +39,7 @@ export const useTooltip = (args: IUseTooltipParams): IUseTooltipReturn => {
 
   const { data: healthData, isLoading: isHealthLoading, refetch: refetchHealth } = useHealthQuery()
 
-  const agentStream = useAgentStream({ target })
+  const agentStream = useAgentStream({ target, mode })
   const abortStreamRef = useRef(agentStream.abortStream)
   abortStreamRef.current = agentStream.abortStream
 
@@ -89,6 +94,9 @@ export const useTooltip = (args: IUseTooltipParams): IUseTooltipReturn => {
     stepsExpanded,
     copied,
     position,
+    queryPreview: agentStream.queryPreview,
+    queryResult: agentStream.queryResult,
+    chartData: agentStream.chartData,
     handleRetry,
     handleCopy,
     toggleSteps,

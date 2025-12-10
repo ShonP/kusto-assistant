@@ -24,7 +24,16 @@
     "serverUnavailable": "Server Unavailable",
     "serverReturnedError": "Server returned error",
     "cannotConnect": "Cannot connect to server",
-    "noReaderAvailable": "No reader available"
+    "noReaderAvailable": "No reader available",
+    "queryGenerated": "Query Generated",
+    "queryPreviewDescription": "KQL query ready for execution",
+    "generatedQuery": "Generated Query",
+    "queryExecuted": "Query Executed",
+    "rowsReturned": "{{count}} rows returned",
+    "queryResults": "Query Results",
+    "showingRows": "Showing {{showing}} of {{total}} rows",
+    "chartReady": "Visualization Ready",
+    "visualization": "Visualization"
   },
   "popup": {
     "title": "Kusto Assistant",
