@@ -39,6 +39,7 @@ export const StatusContainer = styled.div`
   padding: ${({ theme }) => theme.spacing.md};
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: ${({ theme }) => theme.borderRadius.md};
+  direction: ltr;
 `
 
 export const PulsingDotWrapper = styled.div`

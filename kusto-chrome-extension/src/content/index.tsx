@@ -44,6 +44,7 @@ const openTooltip = (args: {
   root.render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
+        <GlobalStyles rootId="ctrlk-tooltip-root" />
         <Tooltip target={target} mode={mode} onClose={removeTooltip} />
       </ThemeProvider>
     </QueryClientProvider>

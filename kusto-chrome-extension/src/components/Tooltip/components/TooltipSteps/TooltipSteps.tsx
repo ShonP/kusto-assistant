@@ -45,7 +45,7 @@ export const TooltipSteps: FC<ITooltipStepsProps> = ({ steps, expanded, onToggle
       <Toggle onClick={onToggle}>
         {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         <span>
-          {reasonedLabel} ({toggleLabel})
+          {reasonedLabel} · {toggleLabel}
         </span>
       </Toggle>
       <StepsListContainer $expanded={expanded}>

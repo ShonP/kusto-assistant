@@ -15,13 +15,16 @@ const queryClient = new QueryClient({
   },
 })
 
-const container = document.getElementById('root')
+const POPUP_ROOT_ID = 'kusto-assistant-popup'
+
+const container = document.getElementById(POPUP_ROOT_ID)
 if (container) {
   const root = createRoot(container)
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
+          <GlobalStyles rootId={POPUP_ROOT_ID} />
           <App />
         </ThemeProvider>
       </QueryClientProvider>

@@ -53,13 +53,20 @@
     "themeDescription": "Choose your preferred color scheme",
     "light": "Light",
     "dark": "Dark",
-    "system": "System"
+    "system": "System",
+    "language": "Language",
+    "languageDescription": "Choose your preferred language",
+    "english": "English",
+    "hebrew": "עברית"
   },
   "status": {
     "loading": "Checking...",
     "healthy": "Healthy",
     "degraded": "Degraded",
-    "unhealthy": "Unhealthy"
+    "unhealthy": "Unhealthy",
+    "serviceRunning": "Service is running",
+    "serviceDegraded": "Service is degraded",
+    "cannotConnect": "Cannot connect to server"
   },
   "healthChecks": {
     "title": "Health Checks",

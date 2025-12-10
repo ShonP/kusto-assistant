@@ -17,6 +17,7 @@ export const PreviewContainer = styled.div`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs};
   animation: ${fadeIn} 0.2s ease-out;
+  direction: ltr;
 `
 
 export const PreviewHeader = styled.div`

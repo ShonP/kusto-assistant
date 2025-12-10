@@ -21,7 +21,7 @@ export interface IApiResponse<T> {
 
 export interface IHealthResult {
   status: 'loading' | 'healthy' | 'degraded' | 'unhealthy'
-  message: string
+  messageKey: string
   details?: Record<string, IHealthCheckDetail>
   version?: string
 }

@@ -29,7 +29,7 @@ export const App: FC = () => {
   const { data: health, isLoading, refetch, isFetching } = useHealthQuery()
 
   const status = isLoading ? 'loading' : health?.status ?? 'unhealthy'
-  const message = health?.message ?? t('popup.checking')
+  const message = health?.messageKey ? t(health.messageKey) : t('popup.checking')
 
   const handleCopyDocker = async () => {
     await navigator.clipboard.writeText(DOCKER_COMMAND)

@@ -13,6 +13,7 @@ export const ResultContainer = styled.div<{ $hasError?: boolean }>`
   max-height: 200px;
   overflow-y: auto;
   line-height: 1.5;
+  direction: ltr;
 `
 
 export const TokenSpan = styled.span<{ $color: string }>`

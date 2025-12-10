@@ -23,6 +23,7 @@ export const StepsListContainer = styled.div<{ $expanded: boolean }>`
   margin-block-start: ${({ theme }) => theme.spacing.sm};
   max-height: 150px;
   overflow-y: auto;
+  direction: ltr;
 `
 
 export const StepItemContainer = styled.div`

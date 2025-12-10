@@ -24,15 +24,15 @@ export const useHealthQuery = () => {
               : isDegraded
                 ? 'degraded'
                 : 'unhealthy',
-          message:
-            isDegraded || hasDegradedChecks ? 'Service is degraded' : 'Service is running',
+          messageKey:
+            isDegraded || hasDegradedChecks ? 'status.serviceDegraded' : 'status.serviceRunning',
           details: data.details,
           version: data.version,
         }
       } catch {
         return {
           status: 'unhealthy',
-          message: 'Cannot connect to server',
+          messageKey: 'status.cannotConnect',
         }
       }
     },

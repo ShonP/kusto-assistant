@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Sun, Moon, Monitor } from 'lucide-react'
+import { Sun, Moon, Monitor, Languages } from 'lucide-react'
 import { useThemeMode } from '../../hooks/useTheme'
 import {
   Container,
@@ -13,8 +13,13 @@ import {
 import type { ISettingsProps } from './Settings.types'
 
 export const Settings: FC<ISettingsProps> = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { themeMode, setThemeMode } = useThemeMode()
+  const currentLanguage = i18n.language
+
+  const handleLanguageChange = (lang: string) => {
+    i18n.changeLanguage(lang)
+  }
 
   return (
     <Container>
@@ -42,6 +47,28 @@ export const Settings: FC<ISettingsProps> = () => {
           >
             <Monitor size={16} />
             {t('settings.system')}
+          </ThemeButton>
+        </ThemeOptions>
+      </Section>
+
+      <Section>
+        <SectionTitle>
+          <Languages size={16} />
+          {t('settings.language')}
+        </SectionTitle>
+        <SectionDescription>{t('settings.languageDescription')}</SectionDescription>
+        <ThemeOptions>
+          <ThemeButton
+            $active={currentLanguage === 'en'}
+            onClick={() => handleLanguageChange('en')}
+          >
+            {t('settings.english')}
+          </ThemeButton>
+          <ThemeButton
+            $active={currentLanguage === 'he'}
+            onClick={() => handleLanguageChange('he')}
+          >
+            {t('settings.hebrew')}
           </ThemeButton>
         </ThemeOptions>
       </Section>

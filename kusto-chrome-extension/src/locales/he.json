@@ -1,0 +1,82 @@
+{
+  "common": {
+    "retry": "נסה שוב",
+    "refresh": "רענן",
+    "copy": "העתק",
+    "copied": "הועתק!",
+    "copyToClipboard": "העתק ללוח",
+    "expand": "הרחב",
+    "collapse": "כווץ",
+    "close": "סגור",
+    "up": "למעלה",
+    "down": "למטה"
+  },
+  "tooltip": {
+    "title": "עוזר Kusto",
+    "connecting": "מתחבר...",
+    "processing": "מעבד...",
+    "callingTool": "קורא לכלי...",
+    "toolComplete": "הכלי הושלם",
+    "error": "שגיאה",
+    "unknownError": "שגיאה לא ידועה",
+    "reasonedInStep": "חשב ב-{{count}} צעד",
+    "reasonedInSteps": "חשב ב-{{count}} צעדים",
+    "serverUnavailable": "השרת לא זמין",
+    "serverReturnedError": "השרת החזיר שגיאה",
+    "cannotConnect": "לא ניתן להתחבר לשרת",
+    "noReaderAvailable": "אין קורא זמין",
+    "queryGenerated": "השאילתה נוצרה",
+    "queryPreviewDescription": "שאילתת KQL מוכנה להרצה",
+    "generatedQuery": "שאילתה שנוצרה",
+    "queryExecuted": "השאילתה הורצה",
+    "rowsReturned": "{{count}} שורות הוחזרו",
+    "queryResults": "תוצאות השאילתה",
+    "showingRows": "מציג {{showing}} מתוך {{total}} שורות",
+    "chartReady": "הוויזואליזציה מוכנה",
+    "visualization": "ויזואליזציה"
+  },
+  "popup": {
+    "title": "עוזר Kusto",
+    "apiStatus": "סטטוס API:",
+    "checking": "בודק...",
+    "port": "פורט:",
+    "dockerHelp": "הפעל את השרת באמצעות Docker:",
+    "version": "גרסה {{version}}"
+  },
+  "tabs": {
+    "status": "סטטוס",
+    "settings": "הגדרות"
+  },
+  "settings": {
+    "title": "הגדרות",
+    "theme": "ערכת נושא",
+    "themeDescription": "בחר את ערכת הצבעים המועדפת עליך",
+    "light": "בהיר",
+    "dark": "כהה",
+    "system": "מערכת",
+    "language": "שפה",
+    "languageDescription": "בחר את השפה המועדפת עליך",
+    "english": "English",
+    "hebrew": "עברית"
+  },
+  "status": {
+    "loading": "בודק...",
+    "healthy": "תקין",
+    "degraded": "חלקי",
+    "unhealthy": "לא תקין",
+    "serviceRunning": "השירות פועל",
+    "serviceDegraded": "השירות פועל חלקית",
+    "cannotConnect": "לא ניתן להתחבר לשרת"
+  },
+  "healthChecks": {
+    "title": "בדיקות תקינות",
+    "memory_heap": "זיכרון (Heap)",
+    "memory_rss": "זיכרון (RSS)",
+    "storage": "אחסון",
+    "llm": "שירות LLM"
+  },
+  "docker": {
+    "title": "השרת לא פועל",
+    "description": "הפעל את השרת באמצעות Docker:"
+  }
+}
