@@ -10,15 +10,6 @@ const fadeIn = keyframes`
   }
 `
 
-const spin = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(90deg);
-  }
-`
-
 export const HeaderContainer = styled.div<{ $isDragging?: boolean }>`
   display: flex;
   justify-content: space-between;

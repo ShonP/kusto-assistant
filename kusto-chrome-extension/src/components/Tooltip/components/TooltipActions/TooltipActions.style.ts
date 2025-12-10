@@ -12,18 +12,6 @@ const slideUp = keyframes`
   }
 `
 
-const successPop = keyframes`
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-`
-
 const shimmer = keyframes`
   0% {
     background-position: -200% 0;

@@ -12,15 +12,6 @@ const slideIn = keyframes`
   }
 `
 
-const shimmer = keyframes`
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-`
-
 export const Container = styled.div`
   position: fixed;
   display: flex;
