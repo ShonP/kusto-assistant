@@ -1,10 +1,12 @@
 import styled from '@emotion/styled'
 
-export const HeaderContainer = styled.div`
+export const HeaderContainer = styled.div<{ $isDragging?: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-block-end: ${({ theme }) => theme.spacing.sm};
+  cursor: ${({ $isDragging }) => ($isDragging ? 'grabbing' : 'grab')};
+  user-select: none;
 `
 
 export const Title = styled.span`

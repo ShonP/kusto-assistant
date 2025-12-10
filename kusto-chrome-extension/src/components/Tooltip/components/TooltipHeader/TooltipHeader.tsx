@@ -3,11 +3,11 @@ import { X } from 'lucide-react'
 import { HeaderContainer, Title, CloseButton } from './TooltipHeader.style'
 import type { ITooltipHeaderProps } from './TooltipHeader.types'
 
-export const TooltipHeader: FC<ITooltipHeaderProps> = ({ title, onClose }) => {
+export const TooltipHeader: FC<ITooltipHeaderProps> = ({ title, onClose, onDragStart, isDragging }) => {
   return (
-    <HeaderContainer>
+    <HeaderContainer onMouseDown={onDragStart} $isDragging={isDragging}>
       <Title>{title}</Title>
-      <CloseButton onClick={onClose} aria-label="close">
+      <CloseButton onClick={onClose} onMouseDown={(e) => e.stopPropagation()} aria-label="close">
         <X size={16} />
       </CloseButton>
     </HeaderContainer>

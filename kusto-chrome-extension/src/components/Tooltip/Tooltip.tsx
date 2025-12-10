@@ -32,6 +32,8 @@ export const Tooltip: FC<ITooltipProps> = ({ target, mode = 'autocomplete', onCl
     stepsExpanded,
     copied,
     position,
+    isDragging,
+    handleDragStart,
     queryPreview,
     queryResult,
     chartData,
@@ -43,7 +45,7 @@ export const Tooltip: FC<ITooltipProps> = ({ target, mode = 'autocomplete', onCl
   if (isHealthy === false) {
     return (
       <Container style={{ top: position.top, left: position.left }}>
-        <TooltipHeader title={t('tooltip.title')} onClose={onClose} />
+        <TooltipHeader title={t('tooltip.title')} onClose={onClose} onDragStart={handleDragStart} isDragging={isDragging} />
         <UnhealthyState
           message={healthMessage}
           dockerCommand={DOCKER_COMMAND}
@@ -59,7 +61,7 @@ export const Tooltip: FC<ITooltipProps> = ({ target, mode = 'autocomplete', onCl
 
   return (
     <Container style={{ top: position.top, left: position.left }}>
-      <TooltipHeader title={t('tooltip.title')} onClose={onClose} />
+      <TooltipHeader title={t('tooltip.title')} onClose={onClose} onDragStart={handleDragStart} isDragging={isDragging} />
 
       {isStreaming && <TooltipStatus status={status} />}
 

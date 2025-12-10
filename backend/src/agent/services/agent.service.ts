@@ -369,14 +369,38 @@ export class AgentService {
     const values = rows.map((r) => Number(r[valueCol.name]) || 0);
 
     let chartType: 'bar' | 'pie' | 'line' = 'bar';
-    const isTimeBasedLabel = ['datetime', 'timespan'].includes(
-      labelCol.type.toLowerCase(),
-    );
 
-    if (isTimeBasedLabel || queryLower.includes('bin(')) {
-      chartType = 'line';
-    } else if (rows.length <= 6 && hasCount) {
+    const hasPieChart =
+      queryLower.includes('piechart') ||
+      queryLower.includes('pie chart') ||
+      queryLower.includes('render pie');
+    const hasBarChart =
+      queryLower.includes('barchart') ||
+      queryLower.includes('bar chart') ||
+      queryLower.includes('render bar') ||
+      queryLower.includes('columnchart');
+    const hasLineChart =
+      queryLower.includes('timechart') ||
+      queryLower.includes('linechart') ||
+      queryLower.includes('line chart') ||
+      queryLower.includes('render time');
+
+    if (hasPieChart) {
       chartType = 'pie';
+    } else if (hasBarChart) {
+      chartType = 'bar';
+    } else if (hasLineChart) {
+      chartType = 'line';
+    } else {
+      const isTimeBasedLabel = ['datetime', 'timespan'].includes(
+        labelCol.type.toLowerCase(),
+      );
+
+      if (isTimeBasedLabel || queryLower.includes('bin(')) {
+        chartType = 'line';
+      } else if (rows.length <= 6 && hasCount) {
+        chartType = 'pie';
+      }
     }
 
     const title = `${valueCol.name} by ${labelCol.name}`;

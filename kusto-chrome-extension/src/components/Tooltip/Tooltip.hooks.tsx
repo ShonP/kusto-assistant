@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHealthQuery } from '../../queries/useHealthQuery'
-import { useAgentStream } from '../../hooks/useAgentStream'
+import { useAgentStream, useDrag } from '../../hooks'
 import type { IQueryResult, IChartData, AgentMode } from '../../types/content.types'
 
 interface IUseTooltipParams {
@@ -20,11 +20,13 @@ interface IUseTooltipReturn {
   stepsExpanded: boolean
   copied: boolean
   position: { top: number; left: number }
+  isDragging: boolean
+  handleDragStart: (e: React.MouseEvent) => void
   queryPreview: string | null
   queryResult: IQueryResult | null
   chartData: IChartData | null
   handleRetry: () => void
-  handleCopy: () => void
+  handleCopy: (content: string) => void
   toggleSteps: () => void
 }
 
@@ -34,7 +36,7 @@ export const useTooltip = (args: IUseTooltipParams): IUseTooltipReturn => {
 
   const [stepsExpanded, setStepsExpanded] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [position, setPosition] = useState({ top: 0, left: 0 })
+  const [initialPosition, setInitialPosition] = useState({ top: 0, left: 0 })
   const hasStartedRef = useRef(false)
 
   const { data: healthData, isLoading: isHealthLoading, refetch: refetchHealth } = useHealthQuery()
@@ -48,11 +50,13 @@ export const useTooltip = (args: IUseTooltipParams): IUseTooltipReturn => {
 
   useEffect(() => {
     const rect = target.getBoundingClientRect()
-    setPosition({
+    setInitialPosition({
       top: rect.bottom + 8,
       left: rect.left,
     })
   }, [target])
+
+  const { position, isDragging, handleMouseDown: handleDragStart } = useDrag({ initialPosition })
 
   useEffect(() => {
     if (isHealthy && !hasStartedRef.current) {
@@ -73,11 +77,11 @@ export const useTooltip = (args: IUseTooltipParams): IUseTooltipReturn => {
     refetchHealth()
   }, [agentStream, refetchHealth])
 
-  const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(agentStream.result)
+  const handleCopy = useCallback(async (content: string) => {
+    await navigator.clipboard.writeText(content)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }, [agentStream.result])
+  }, [])
 
   const toggleSteps = useCallback(() => {
     setStepsExpanded((prev) => !prev)
@@ -94,6 +98,8 @@ export const useTooltip = (args: IUseTooltipParams): IUseTooltipReturn => {
     stepsExpanded,
     copied,
     position,
+    isDragging,
+    handleDragStart,
     queryPreview: agentStream.queryPreview,
     queryResult: agentStream.queryResult,
     chartData: agentStream.chartData,
