@@ -50,7 +50,7 @@ export const TooltipSteps: FC<ITooltipStepsProps> = ({ steps, expanded, onToggle
       </Toggle>
       <StepsListContainer $expanded={expanded}>
         {steps.map((step, index) => (
-          <StepItemContainer key={index}>
+          <StepItemContainer key={index} $index={index}>
             <StepIconContainer>{step.icon}</StepIconContainer>
             <StepContentContainer>
               <StepTitleText>{step.title}</StepTitleText>

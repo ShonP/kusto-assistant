@@ -12,11 +12,22 @@ const fadeIn = keyframes`
   }
 `
 
+const rowFadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`
+
 export const ResultsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs};
-  animation: ${fadeIn} 0.2s ease-out;
+  animation: ${fadeIn} 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 `
 
 export const ResultsHeader = styled.div`
@@ -45,6 +56,11 @@ export const TableWrapper = styled.div`
   overflow: auto;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.md};
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.accent}66;
+  }
 `
 
 export const Table = styled.table`
@@ -73,7 +89,10 @@ export const TableBody = styled.tbody`
   background-color: ${({ theme }) => theme.colors.background};
 `
 
-export const TableRow = styled.tr`
+export const TableRow = styled.tr<{ $index?: number }>`
+  animation: ${rowFadeIn} 0.3s cubic-bezier(0.16, 1, 0.3, 1) ${({ $index = 0 }) => $index * 30}ms both;
+  transition: background-color 0.15s ease;
+
   &:hover {
     background-color: ${({ theme }) => theme.colors.surfaceHover};
   }

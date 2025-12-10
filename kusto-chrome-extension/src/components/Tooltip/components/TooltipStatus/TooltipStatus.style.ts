@@ -32,6 +32,26 @@ const glow = keyframes`
   }
 `
 
+const slideInLeft = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`
+
+const textShimmer = keyframes`
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+`
+
 export const StatusContainer = styled.div`
   display: flex;
   align-items: flex-start;
@@ -40,6 +60,7 @@ export const StatusContainer = styled.div`
   background-color: ${({ theme }) => theme.colors.surface};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   direction: ltr;
+  animation: ${slideInLeft} 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 `
 
 export const PulsingDotWrapper = styled.div`
@@ -86,4 +107,15 @@ export const PulsingDot = styled.div`
 export const StatusText = styled.span`
   font-size: ${({ theme }) => theme.fontSize.sm};
   color: ${({ theme }) => theme.colors.textSecondary};
+  background: linear-gradient(
+    90deg,
+    ${({ theme }) => theme.colors.textSecondary} 0%,
+    ${({ theme }) => theme.colors.text} 50%,
+    ${({ theme }) => theme.colors.textSecondary} 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ${textShimmer} 2s linear infinite;
 `

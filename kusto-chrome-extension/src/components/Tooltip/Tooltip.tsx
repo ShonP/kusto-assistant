@@ -56,7 +56,7 @@ export const Tooltip: FC<ITooltipProps> = ({ target, mode = 'autocomplete', onCl
   }
 
   const showQueryPreview = queryPreview && !result
-  const copyableContent = queryPreview || result
+  const copyableContent = result || queryPreview
   const isStreaming = !isComplete
 
   return (

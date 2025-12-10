@@ -54,7 +54,7 @@ export const QueryResults: FC<IQueryResultsProps> = ({ queryResult }) => {
           </TableHeader>
           <TableBody>
             {displayRows.map((row, rowIndex) => (
-              <TableRow key={rowIndex}>
+              <TableRow key={rowIndex} $index={rowIndex}>
                 {visibleColumns.map((col) => (
                   <TableCell key={col.name} title={formatCellValue(row[col.name])}>
                     {formatCellValue(row[col.name])}
