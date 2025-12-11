@@ -45,7 +45,8 @@
   },
   "tabs": {
     "status": "Status",
-    "settings": "Settings"
+    "settings": "Settings",
+    "credentials": "Credentials"
   },
   "settings": {
     "title": "Settings",
@@ -78,5 +79,18 @@
   "docker": {
     "title": "Backend Not Running",
     "description": "Start the backend server with Docker:"
+  },
+  "credentials": {
+    "loading": "Loading...",
+    "notLoggedIn": "Not Signed In",
+    "loginDescription": "Sign in with your Microsoft account to access Kusto clusters and Azure resources.",
+    "signIn": "Sign in with Microsoft",
+    "signOut": "Sign Out",
+    "switchAccount": "Switch Account",
+    "connected": "Connected",
+    "expired": "Session Expired",
+    "loginRequired": "Sign in Required",
+    "loginRequiredDescription": "Please sign in from the extension popup to use Kusto Assistant.",
+    "openPopup": "Open Extension Popup"
   }
 }

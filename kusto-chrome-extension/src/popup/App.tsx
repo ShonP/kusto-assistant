@@ -6,6 +6,7 @@ import { Settings } from '../components/Settings'
 import { StatusIndicator } from '../components/StatusIndicator'
 import { HealthChecksList } from '../components/HealthChecksList'
 import { DockerSection } from '../components/DockerSection'
+import { Credentials } from '../components/Credentials'
 import { useHealthQuery } from '../queries/useHealthQuery'
 import { API_PORT } from '../config'
 import {
@@ -37,6 +38,7 @@ export const App: FC = () => {
 
   const tabs = [
     { id: 'status', label: t('tabs.status') },
+    { id: 'credentials', label: t('tabs.credentials') },
     { id: 'settings', label: t('tabs.settings') },
   ]
 
@@ -80,6 +82,8 @@ export const App: FC = () => {
           </InfoSection>
         </>
       )}
+
+      {activeTab === 'credentials' && <Credentials />}
 
       {activeTab === 'settings' && <Settings />}
     </Container>

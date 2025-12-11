@@ -1,23 +1,58 @@
+export interface IMcpConfig {
+  useOboFlow: boolean;
+  azureTenantId: string;
+  entraAppClientId: string;
+  userManagedIdentityClientId: string;
+  fabricApiBaseUrl: string;
+  mcpServerUrl: string;
+}
 
-export interface McpServerConfig {
+export type TransportType = 'stdio' | 'http';
+
+export interface IMcpServerConfig {
   name: string;
   description: string;
-  command: string;
-  args: string[];
+  transport: TransportType;
+  command?: string;
+  args?: string[];
   env?: Record<string, string>;
+  httpUrl?: string;
   enabled: boolean;
 }
 
-export const MCP_SERVERS: McpServerConfig[] = [
-  {
-    name: 'fabric-rti',
-    description:
-      'Microsoft Fabric Real-Time Intelligence MCP server for Kusto, Eventstreams, and Activator',
-    command: 'uvx',
-    args: ['microsoft-fabric-rti-mcp', '--stdio'],
-    env: {
-      FABRIC_API_BASE_URL: 'https://api.fabric.microsoft.com/v1',
+export const getMcpServers = (args: {
+  config: IMcpConfig;
+}): IMcpServerConfig[] => {
+  const { config } = args;
+  console.log({ config });
+
+  if (config.useOboFlow) {
+    // OBO flow requires HTTP transport - MCP server must be started separately
+    // with USE_OBO_FLOW=true and other OBO env vars
+    return [
+      {
+        name: 'fabric-rti',
+        description:
+          'Microsoft Fabric Real-Time Intelligence MCP server for Kusto, Eventstreams, and Activator',
+        transport: 'http',
+        httpUrl: config.mcpServerUrl,
+        enabled: true,
+      },
+    ];
+  }
+
+  return [
+    {
+      name: 'fabric-rti',
+      description:
+        'Microsoft Fabric Real-Time Intelligence MCP server for Kusto, Eventstreams, and Activator',
+      transport: 'stdio',
+      command: 'uvx',
+      args: ['microsoft-fabric-rti-mcp'],
+      env: {
+        FABRIC_API_BASE_URL: config.fabricApiBaseUrl,
+      },
+      enabled: true,
     },
-    enabled: true,
-  },
-];
+  ];
+};

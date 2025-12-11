@@ -51,4 +51,16 @@ export default () => ({
     samplingRatio: parseFloat(process.env.TELEMETRY_SAMPLING_RATIO || '0.1'),
     storageDirectory: process.env.TELEMETRY_STORAGE_DIRECTORY,
   },
+
+  mcp: {
+    useOboFlow: process.env.MCP_USE_OBO_FLOW === 'true',
+    azureTenantId: process.env.MCP_AZURE_TENANT_ID || '',
+    entraAppClientId: process.env.MCP_ENTRA_APP_CLIENT_ID || '',
+    userManagedIdentityClientId:
+      process.env.MCP_USER_MANAGED_IDENTITY_CLIENT_ID || '',
+    fabricApiBaseUrl:
+      process.env.MCP_FABRIC_API_BASE_URL ||
+      'https://api.fabric.microsoft.com/v1',
+    mcpServerUrl: process.env.MCP_SERVER_URL || 'http://localhost:3001/mcp',
+  },
 });

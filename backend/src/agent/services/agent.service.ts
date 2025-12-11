@@ -30,6 +30,7 @@ interface IAgentCallbacks {
 interface IRunAgentParams {
   userMessage: string;
   kustoContext: KustoContext;
+  userToken: string;
 }
 
 @Injectable()
@@ -44,11 +45,12 @@ export class AgentService {
     this.logger.setContext(AgentService.name);
   }
 
-  private createAgent(args: {
+  private async createAgent(args: {
     callbacks: IAgentCallbacks;
     kustoContext: KustoContext;
-  }): Agent {
-    const { callbacks, kustoContext } = args;
+    userToken: string;
+  }): Promise<Agent> {
+    const { callbacks, kustoContext, userToken } = args;
     const {
       onAnnotation,
       onToolCall,
@@ -98,7 +100,7 @@ export class AgentService {
       },
     });
 
-    const mcpTools = this.mcpClient.getTools();
+    const mcpTools = await this.mcpClient.getToolsWithToken({ userToken });
     const agentTools = mcpTools.map((mcpTool) => {
       const zodSchema = this.convertToZodSchema(mcpTool.inputSchema);
 
@@ -109,10 +111,11 @@ export class AgentService {
         execute: async (toolArgs) => {
           onToolCall(mcpTool.name, toolArgs as Record<string, unknown>);
 
-          const result = await this.mcpClient.callTool(
-            mcpTool.name,
-            toolArgs as Record<string, unknown>,
-          );
+          const result = await this.mcpClient.callTool({
+            name: mcpTool.name,
+            args: toolArgs as Record<string, unknown>,
+            userToken,
+          });
 
           onToolResult(mcpTool.name, result);
 
@@ -473,7 +476,7 @@ export class AgentService {
    * Uses a generator to yield events as they happen
    */
   async *runAgent(params: IRunAgentParams): AsyncGenerator<AgentStreamEvent> {
-    const { userMessage, kustoContext } = params;
+    const { userMessage, kustoContext, userToken } = params;
 
     this.logger.log({
       message: 'Starting agent run',
@@ -481,6 +484,7 @@ export class AgentService {
         userMessage: userMessage.substring(0, 100),
         clusterUri: kustoContext.clusterUri,
         databaseName: kustoContext.databaseName,
+        hasUserToken: !!userToken,
       },
     });
 
@@ -596,7 +600,7 @@ export class AgentService {
       `Processing your request: "${userMessage}"`,
     );
 
-    const agent = this.createAgent({ callbacks, kustoContext });
+    const agent = await this.createAgent({ callbacks, kustoContext, userToken });
 
     let finalOutput: string | null = null;
     let agentErrorMessage: string | null = null;

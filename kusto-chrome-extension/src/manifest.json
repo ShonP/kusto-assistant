@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Kusto Assistant",
   "version": "1.0.0",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage", "identity"],
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "Kusto Assistant"

@@ -2,6 +2,7 @@ import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { API_PORT } from '../../config'
 import type { ITooltipProps } from '../../types/content.types'
+import { useAuth } from '../../hooks'
 import { useTooltip } from './Tooltip.hooks'
 import { Container } from './Tooltip.style'
 import {
@@ -11,6 +12,7 @@ import {
   TooltipSteps,
   TooltipActions,
   UnhealthyState,
+  LoginRequiredState,
   QueryPreview,
   QueryResults,
   ChartView,
@@ -20,6 +22,7 @@ const DOCKER_COMMAND = `docker run -p ${API_PORT}:${API_PORT} kusto-agent`
 
 export const Tooltip: FC<ITooltipProps> = ({ target, mode = 'autocomplete', onClose }) => {
   const { t } = useTranslation()
+  const { authState, isLoading: isAuthLoading } = useAuth()
 
   const {
     isHealthy,
@@ -40,7 +43,21 @@ export const Tooltip: FC<ITooltipProps> = ({ target, mode = 'autocomplete', onCl
     handleRetry,
     handleCopy,
     toggleSteps,
-  } = useTooltip({ target, mode })
+  } = useTooltip({ target, mode, isAuthenticated: authState.isAuthenticated })
+
+  if (!isAuthLoading && !authState.isAuthenticated) {
+    return (
+      <Container style={{ top: position.top, left: position.left }}>
+        <TooltipHeader
+          title={t('tooltip.title')}
+          onClose={onClose}
+          onDragStart={handleDragStart}
+          isDragging={isDragging}
+        />
+        <LoginRequiredState />
+      </Container>
+    )
+  }
 
   if (isHealthy === false) {
     return (

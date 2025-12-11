@@ -66,8 +66,19 @@ resource extensionContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
   }
 }
 
-output registryName string = containerRegistry.name
-output registryLoginServer string = containerRegistry.properties.loginServer
-output storageAccountName string = storageAccount.name
-output storageAccountBlobEndpoint string = storageAccount.properties.primaryEndpoints.blob
-output extensionContainerUrl string = '${storageAccount.properties.primaryEndpoints.blob}extension'
+var managedIdentityName = 'id-${workloadName}-${environmentType}-${regionCode}-${instanceNumber}'
+
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: managedIdentityName
+  location: location
+  tags: tags
+}
+
+output REGISTRY_NAME string = containerRegistry.name
+output REGISTRY_LOGIN_SERVER string = containerRegistry.properties.loginServer
+output STORAGE_ACCOUNT_NAME string = storageAccount.name
+output STORAGE_ACCOUNT_BLOB_ENDPOINT string = storageAccount.properties.primaryEndpoints.blob
+output EXTENSION_CONTAINER_URL string = '${storageAccount.properties.primaryEndpoints.blob}extension'
+output MANAGED_IDENTITY_NAME string = managedIdentity.name
+output MANAGED_IDENTITY_CLIENT_ID string = managedIdentity.properties.clientId
+output MANAGED_IDENTITY_PRINCIPAL_ID string = managedIdentity.properties.principalId

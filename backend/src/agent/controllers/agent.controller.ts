@@ -1,14 +1,24 @@
-import { Controller, Post, Body, Res, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiProduces,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { AgentService } from '../services/agent.service';
 import { AskAgentDto } from '../dto/ask-agent.dto';
 import { LoggerService } from '../../telemetry/logger/logger.service';
+import { BearerTokenGuard } from '../../common/guards';
+import { UserToken } from '../../common/decorators';
 
 export interface KustoContext {
   clusterUri: string;
@@ -26,6 +36,8 @@ function buildClusterUri(clusterName: string): string {
 
 @ApiTags('Agent')
 @Controller('agent')
+@ApiBearerAuth()
+@UseGuards(BearerTokenGuard)
 export class AgentController {
   constructor(
     private readonly agentService: AgentService,
@@ -51,7 +63,14 @@ export class AgentController {
           properties: {
             type: {
               type: 'string',
-              enum: ['annotation', 'tool_call', 'tool_result', 'message', 'done', 'error'],
+              enum: [
+                'annotation',
+                'tool_call',
+                'tool_result',
+                'message',
+                'done',
+                'error',
+              ],
             },
             title: { type: 'string' },
             description: { type: 'string' },
@@ -63,7 +82,15 @@ export class AgentController {
     },
   })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async ask(@Body() body: AskAgentDto, @Res() res: Response): Promise<void> {
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Missing or invalid token',
+  })
+  async ask(
+    @Body() body: AskAgentDto,
+    @Res() res: Response,
+    @UserToken() userToken: string,
+  ): Promise<void> {
     const { message, clusterName, databaseName } = body;
 
     this.logger.log({
@@ -93,6 +120,7 @@ export class AgentController {
       for await (const event of this.agentService.runAgent({
         userMessage: message,
         kustoContext,
+        userToken,
       })) {
         eventCount++;
         const sseData = `data: ${JSON.stringify(event)}\n\n`;

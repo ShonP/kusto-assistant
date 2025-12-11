@@ -7,6 +7,7 @@ import type { IQueryResult, IChartData, AgentMode } from '../../types/content.ty
 interface IUseTooltipParams {
   target: HTMLElement
   mode?: AgentMode
+  isAuthenticated: boolean
 }
 
 interface IUseTooltipReturn {
@@ -31,7 +32,7 @@ interface IUseTooltipReturn {
 }
 
 export const useTooltip = (args: IUseTooltipParams): IUseTooltipReturn => {
-  const { target, mode = 'autocomplete' } = args
+  const { target, mode = 'autocomplete', isAuthenticated } = args
   const { t } = useTranslation()
 
   const [stepsExpanded, setStepsExpanded] = useState(false)
@@ -59,11 +60,11 @@ export const useTooltip = (args: IUseTooltipParams): IUseTooltipReturn => {
   const { position, isDragging, handleMouseDown: handleDragStart } = useDrag({ initialPosition })
 
   useEffect(() => {
-    if (isHealthy && !hasStartedRef.current) {
+    if (isHealthy && isAuthenticated && !hasStartedRef.current) {
       hasStartedRef.current = true
       agentStream.startStream()
     }
-  }, [isHealthy, agentStream.startStream])
+  }, [isHealthy, isAuthenticated, agentStream.startStream])
 
   useEffect(() => {
     return () => {

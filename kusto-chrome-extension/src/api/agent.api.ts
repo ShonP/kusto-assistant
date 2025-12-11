@@ -1,4 +1,5 @@
 import { apiClient } from './instance'
+import { getAccessToken } from '../auth'
 import type { IAgentEvent, IKustoContext } from '../types/content.types'
 
 export interface IAgentAskParams {
@@ -21,9 +22,17 @@ export const agentApi = {
   }): Promise<void> => {
     const { params, callbacks, signal } = args
 
+    const token = await getAccessToken()
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
     const response = await fetch(`${apiClient.defaults.baseURL}/agent/ask`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(params),
       signal,
     })
