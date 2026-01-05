@@ -2,6 +2,10 @@
 
 An AI-powered assistant for Azure Data Explorer (Kusto) that helps you write and optimize KQL queries.
 
+Watch the demo below
+
+[![Watch the video](https://img.youtube.com/vi/5VVXOyeuoBQ/0.jpg)](https://www.youtube.com/watch?v=5VVXOyeuoBQ)
+
 ## Features
 
 - 🤖 AI-powered KQL query generation
